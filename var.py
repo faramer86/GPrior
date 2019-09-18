@@ -1,6 +1,7 @@
 import pandas as pd
+import numpy as np
 
-do_not_need = ['ld_snp_rsID', 'chrom', 'pos',
+DO_NOT_NEED = ['ld_snp_rsID', 'chrom', 'pos',
                'GRCh38_chrom', 'gwas_size',
                'GRCh38_pos', 'GRCh38_gene_chrom',
                'gene_chrom', 'gene_tss',
@@ -73,7 +74,7 @@ do_not_need = ['ld_snp_rsID', 'chrom', 'pos',
                'ls_snp_is_gwas_snp',
                'r2']
 
-gtex_columns = {'Adipose - Subcutaneous': None,
+GTEX_COLUMNS = {'Adipose - Subcutaneous': None,
                 'Adipose - Visceral (Omentum)': None,
                 'Adrenal Gland': None,
                 'Artery - Aorta': None,
@@ -127,11 +128,19 @@ gtex_columns = {'Adipose - Subcutaneous': None,
                 'Vagina': None,
                 'Whole Blood': None}
 
-gtex_db = pd.read_csv(
+GTEX_DB = pd.read_csv(
     'databases/GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1.8_gene_median_tpm.tsv', sep='\t')
 
+GTEX_SIMILARITY_DB = pd.read_csv(
+    'databases/UCSC_GTEx_db.tsv', sep='\t', index_col=0)
 
-col_dtypes = {'afr': 'float16',
+BLASTP_SIMILARITY_DB = pd.read_csv(
+    'databases/UCSC_blastp_db.tsv', sep='\t', index_col=0)
+
+GENE_INTERACTIONS_DB = pd.read_csv(
+    'databases/UCSC_gene_interactions.tsv', sep='\t', index_col=0)
+
+COL_DTYPES = {'afr': 'float16',
               'amr': 'float16',
               'eas': 'float16',
               'eur': 'float16',
@@ -192,3 +201,25 @@ col_dtypes = {'afr': 'float16',
               'GTEx': 'float32',
               'VEP': 'uint8',
               'Nearest': 'uint8'}
+
+PARAM_DIST_RF = {'max_depth': [5, 10, 15, 20, 30, 50, 100],
+              'max_features': ['auto', 'sqrt', 'log2', None]}
+               #'min_samples_leaf': [1, 2, 4],
+               #'min_samples_split': [2, 5, 10]}
+        
+PARAM_DIST_SVC = {'C':[1,10,100,1000],
+                'gamma':[1,0.1,0.001,0.0001]}
+                    
+PARAM_DIST_LR = {"C":np.logspace(-3,3,10),
+                 "penalty":["l1","l2"]}
+
+PARAM_DIST_XGB = {'min_child_weight': [1, 2, 5],
+                 'gamma':[2, 1,0.1,0.001],
+                 'max_depth': [6, 9, 12],
+                 'eta': [0.05, 0.1, 0.3]}
+
+PARAM_DIST_DT = {'max_depth':[5, 10, 15, 30, 50], 
+                 'min_samples_leaf':[1,2,3,4], 
+                 'min_samples_split':[2,3,4,5]}
+
+N_ESTIM_PARAM = {'n_estimators': [i for i in range(100, 1500, 50)]}
