@@ -203,23 +203,22 @@ COL_DTYPES = {'afr': 'float16',
               'Nearest': 'uint8'}
 
 PARAM_DIST_RF = {'max_depth': [5, 10, 15, 20, 30, 50, 100],
-              'max_features': ['auto', 'sqrt', 'log2', None]}
-               #'min_samples_leaf': [1, 2, 4],
-               #'min_samples_split': [2, 5, 10]}
+                     'max_features': ['auto', 'sqrt', 'log2', None],
+                     'min_samples_split': [2, 5, 10],
+                     'min_samples_leaf': [1, 2, 4]}
+               
         
-PARAM_DIST_SVC = {'C':[1,10,100,1000],
-                'gamma':[1,0.1,0.001,0.0001]}
+PARAM_DIST_SVC = {'gamma':[1,0.1,0.001,0.0001],
+                     'C':[0.01,0.1,1,10,100,1000]}
                     
-PARAM_DIST_LR = {"C":np.logspace(-3,3,10),
+PARAM_DIST_LR = {"C":np.logspace(-3,3,20),
                  "penalty":["l1","l2"]}
 
 PARAM_DIST_XGB = {'min_child_weight': [1, 2, 5],
-                 'gamma':[2, 1,0.1,0.001],
-                 'max_depth': [6, 9, 12],
-                 'eta': [0.05, 0.1, 0.3]}
+                 'gamma':[2, 1,0.1,0.001]}
 
 PARAM_DIST_DT = {'max_depth':[5, 10, 15, 30, 50], 
-                 'min_samples_leaf':[1,2,3,4], 
-                 'min_samples_split':[2,3,4,5]}
+                     'min_samples_leaf':[1,2,3,4], 
+                     'min_samples_split':[2,3,4,5]}
 
 N_ESTIM_PARAM = {'n_estimators': [i for i in range(100, 1500, 50)]}
