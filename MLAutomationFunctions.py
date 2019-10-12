@@ -21,81 +21,51 @@ class GeneClassifier:
     def __init__(self, input_df, causal_genes, model, class_weights):
         self.input_df = input_df
         self.causal_genes = causal_genes['gene_symbol'].values
-        self.model = model
         self.class_weights = class_weights
         self.X_train = 0
         self.X_test = 0
         self.y_train = 0
         self.y_test = 0
 
+    @staticmethod
+    def filter_data(df):
+        """
+        Filter out genes with more then 70% missing features.
+        """
+        return df.loc[gtex_frames.apply(lambda x: sum(x == 0), axis=1) <= 80, ]
+
     def return_x_y(self):
+        """
+        Return X - df with filled name
+               y - Series with supervided answers (1 or 0) for each gene
+        """
+        data = filter_data(self.input_df)
         y = self.input_df['gene_symbol'].map(
             lambda x: 1 if x in self.causal_genes else 0)
         print(f'We found {sum(y)} causal genes from this list!')
         x = self.input_df.fillna(0).set_index('gene_symbol')
         return x, y
 
-    def get_model(self):
-        if self.model == 'rf':
-            print('Random Forest is chosen')
-            estimator = RandomForestClassifier(class_weight=self.class_weights)
-        elif self.model == 'lr':
-            print('Logistic Regression is chosen')
-            estimator = LogisticRegression(class_weight=self.class_weights)
-        elif self.model == 'xgb':
-            print('Extreme Gradient Boosting is chosen')
-            estimator = XGBClassifier(
-                eval_metric='auc',
-                learning_rate=0.1,
-                nthread=4,
-                silent=True,
-                objective='binary:logistic',
-                class_weight=self.class_weights)
-        print(f'Class weights are: {self.class_weights}')
-        return estimator
-
-    def set_model_parameters(self, estimator):
-        if self.model == 'rf':
-            parameters_rf = best_parameters(
-                estimator, self.X_train, self.y_train, PARAM_DIST_RF)
-            estimator.set_params(bootstrap=True,
-                                 criterion=parameters_rf['criterion'],
-                                 max_depth=parameters_rf['max_depth'],
-                                 max_features=parameters_rf['max_features'],
-                                 min_samples_leaf=1,
-                                 min_samples_split=2,
-                                 n_estimators=700)
-        elif self.model == 'lr':
-            parameters_lr = best_parameters(
-                lr, self.X_train, self.y_train, PARAM_DIST_LR)
-            lr.set_params(C=parameters_lr['C'],
-                          penalty=parameters_lr['penalty'])
-        elif self.model == 'xgb':
-            estimator = XGBClassifier(
-                eval_metric='auc',
-                learning_rate=0.1,
-                nthread=4,
-                silent=True,
-                objective='binary:logistic',
-                class_weight=self.class_weights)
-        print('Hyperparameters are tuned..')
-        return estimator
+    @staticmethod
+    def best_parameters(model, X_train, y_train, params):
+    cv = GridSearchCV(model, cv=5,
+                      param_grid=params,
+                      n_jobs=3,
+                      iid=False)
+    cv.fit(X_train, y_train)
+    print('Best Parameters using grid search: \n',
+          cv.best_params_)
+    return cv.best_params_
 
     @staticmethod
-    def return_SMOTE(X_train, y_train, ratio=0.5):
-        print(f'SMOTE ration is {ratio}')
-        sampler = SMOTE(ratio=0.5, random_state=42)
-        X_rs, y_rs = sampler.fit_sample(X_train, y_train)
-        return X_rs, y_rs
-
-    @staticmethod
-    def best_parameters(model, new_X_train, new_y_train, PARAM_DIST):
-        cv_rf = GridSearchCV(model, cv=5,
-                             param_grid=PARAM_DIST,
-                             n_jobs=3)
-        cv_rf.fit(new_X_train, new_y_train)
-        print('Best Parameters using grid search: \n', cv_rf.best_params_)
-        return cv_rf.best_params_
+    def mean_model_prob(plot_df):
+        models = ['lr', 'rf', 'dt', 'svc']
+        mean_prob = np.array([0.0] * len(plot_df['rf_results']))
+        for model in models:
+            mean_prob += np.array(plot_dfs[f'{model}_results']['predicted_y'])
+        result = pd.DataFrame({'predicted_y': mean_prob / len(models)})
+        plot_df['mean_results'] = result
+        return plot_df
 
     @staticmethod
     def PU_learning_result(estimator, x, y, n_estimators=100):

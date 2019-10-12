@@ -14,7 +14,7 @@ def import_postgap_file(input_path, COL_DTYPES):
         input = drop_columns(pd.read_csv(
             input_path, sep='\t', dtype=COL_DTYPES), DO_NOT_NEED)   # low_memory=False
     else:
-        all_files = glob.glob(os.path.join(input_path, "*.txt"))
+        all_files = glob.glob(os.path.join(input_path, "*.tsv"))
         li = []
         count = 0
         for filename in all_files:

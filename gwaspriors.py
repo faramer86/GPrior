@@ -9,9 +9,9 @@ if __name__ == '__main__':
         description='This script analyse gwas data')
     parser.add_argument('-i', '--postgap_path', required=True,
                         help='Path to file/folder with postgap output')
-    parser.add_argument('-g', '--genes', required=True,
+    parser.add_argument('-g', '--genes', required=False,
                         help='Path to file with names of causal genes')
-    parser.add_argument('-e', '--extended_list', required=True,
+    parser.add_argument('-e', '--extended_list', required=False,
                         help='Path to file with extended list of causal genes')
     parser.add_argument('-o', '--output', required=True,
                         help='Path to output')
