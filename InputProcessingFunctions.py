@@ -3,6 +3,15 @@ from AdditionalFeatures import *
 import pandas as pd
 import os
 import glob
+from progress.bar import Bar
+
+
+def drop_columns(df, DO_NOT_NEED):
+    """
+    Drop unnecessary columns from postgap output df
+    """
+    df.drop(DO_NOT_NEED, axis=1, inplace=True)
+    return df
 
 
 def import_postgap_file(input_path, COL_DTYPES):
@@ -13,48 +22,26 @@ def import_postgap_file(input_path, COL_DTYPES):
         print(f'postgap file "{os.path.basename(input_path)}" is importing..')
         input = drop_columns(pd.read_csv(
             input_path, sep='\t', dtype=COL_DTYPES), DO_NOT_NEED)   # low_memory=False
+        return input
     else:
-        all_files = glob.glob(os.path.join(input_path, "*.tsv"))
-        li = []
-        count = 0
-        for filename in all_files:
-            if count == 0:
-                print(
-                    f'postgap file "{os.path.basename(filename)}" from repo is importing..')
-                df = drop_columns(pd.read_csv(
-                    filename, sep='\t', dtype=COL_DTYPES), DO_NOT_NEED)
-                li = df.copy()
-                # df.to_csv('tmp.tsv', sep='\t', index=False)
-                count += 1
-            else:
-                print(
-                    f'postgap file "{os.path.basename(filename)}" from repo is importing..')
-                df = drop_columns(pd.read_csv(
-                    filename, sep='\t', dtype=COL_DTYPES), DO_NOT_NEED)    # dtype=COL_DTYPES
-                li = pd.concat([li, df.copy()], axis=0,
-                               ignore_index=True, sort=False)
-                if len(li) >= 10**7:
-                    print(
-                        'You have reached 10 mil rows of data. \
-                        We recommend you to use server or \
-                        split your data to chunks and then use this tool!')
-                # df.to_csv('tmp.tsv', mode='a', columns=False,
-                # index = False, sep = '\t')
-                # del df
-        # li.append(df)
-        print('Combining files...')
-        # input = pd.read_csv('tmp.tsv', sep='\t')
-        # input = pd.concat(li, axis=0, ignore_index=True, sort=False)
-        print('All postgap files from repo are combined')
-    return li
-
-
-def drop_columns(df, DO_NOT_NEED):
-    """
-    Drop unnecessary columns from postgap output df
-    """
-    df.drop(DO_NOT_NEED, axis=1, inplace=True)
-    return df
+        all_files = glob.glob(os.path.join(input_path, "*.txt"))
+        print('Importing postgap files...')
+        with Bar('Processing', max=len(list(all_files))) as bar:
+            for filename in all_files:
+                df = drop_columns(pd.read_csv(filename, sep='\t', low_memory=False), DO_NOT_NEED)
+                if filename == all_files[0]:
+                    li = df.copy()
+                    bar.next()
+                else:
+                    li = pd.concat([li, df.copy()], axis=0, ignore_index=True, sort=False)
+                    bar.next()
+                    if len(li) >= 10**7:
+                        print(
+                            'You have reached 10 mil rows of data. \
+                            We recommend you to use server or \
+                            split your data to chunks and then use this tool!')
+            print('\nAll postgap files from repo are combined')
+            return li
 
 
 def fill_NA(df):
@@ -77,15 +64,13 @@ def combine_duplicates(input_df):
             new_df.loc[ind] = input_df.loc[ind]
         else:
             mean = input_df.loc[ind].mean()
-            #gene_name = list(set(input_df.loc[ind]['gene_id']))[0]
             new_df.loc[ind] = mean
-            #new_df.loc[ind, 'gene_id'] = gene_name
     new_df = new_df.reset_index()
     new_df.rename(columns={'index': 'gene_symbol'}, inplace=True)
     return new_df
 
 
-def process_input_file(postgap_file, causal_genes, GTEX_COLUMNS, GTEX_DB):
+def process_input_file(postgap_file, causal_genes):
     """
     Process input postgap file:
     1) Drop unnecessary drop_columns
@@ -94,6 +79,7 @@ def process_input_file(postgap_file, causal_genes, GTEX_COLUMNS, GTEX_DB):
     4) Add gtex gene expression ranks for 53 tissues
     5) Add several new features:
         gtex_similarity,
+        atlas_similarity,
         blastp_similarity,
         gene_interactions
     """
@@ -103,6 +89,8 @@ def process_input_file(postgap_file, causal_genes, GTEX_COLUMNS, GTEX_DB):
         ML_input, GTEX_SIMILARITY_DB, causal_genes)
     ML_input['blastp_similarity'] = add_gene_similarity_feature(
         ML_input, BLASTP_SIMILARITY_DB, causal_genes)
+    ML_input['atlas_similarity'] = add_gene_similarity_feature(
+        ML_input, ATLAS_SIMILARITY_DB, causal_genes)
     ML_input['gene_interactions'] = add_gene_similarity_feature(
         ML_input, GENE_INTERACTIONS_DB, causal_genes)
     ML_input.drop('gene_id', axis=1, inplace=True)

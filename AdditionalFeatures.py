@@ -1,6 +1,6 @@
 import pandas as pd
+import math
 import os
-
 
 def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     """
@@ -26,9 +26,8 @@ def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
 def transform_to_ranks(df, GTEX_COLUMNS):
     """
     This function transform median gene expression values to ranks.
-    The lowest value will be 0 and the highest expression value - 53.
+    The lowest value will be 0 and the highest expression value 53.
     """
-    import math
     gtex_col = list(GTEX_COLUMNS.keys())
     for index in df.index:
         try:
@@ -61,7 +60,12 @@ def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
 def add_gene_similarity_feature(df, db, causal_genes):
     """
     For each gene in df counts how many similar genes are in true_genes.
-    Use in order to add two new features: gtex_similarity, blastp_similarity.
+    Use in order to add several new features:
+    1) gtex_similarity
+    2) blastp_similarity
+    3) atlas_similarity
+    4) gene_intaractions
+    see: process_input_file function
     """
     feature = list()
     for gene in df['gene_symbol']:

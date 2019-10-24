@@ -1,17 +1,30 @@
 import pandas as pd
 import numpy as np
 
-DO_NOT_NEED = ['ld_snp_rsID', 'chrom', 'pos',
-               'GRCh38_chrom', 'gwas_size',
-               'GRCh38_pos', 'GRCh38_gene_chrom',
-               'gene_chrom', 'gene_tss',
-               'GRCh38_gene_pos', 'disease_name',
-               'disease_efo_id', 'cluster_id',
-               'gwas_source', 'gwas_snp',
+DO_NOT_NEED = ['ld_snp_rsID',
+               'chrom',
+               'pos',
+               'GRCh38_chrom',
+               'gwas_size',
+               'GRCh38_pos',
+               'GRCh38_gene_chrom',
+               'gene_chrom',
+               'gene_tss',
+               'GRCh38_gene_pos',
+               'disease_name',
+               'disease_efo_id',
+               'cluster_id',
+               'gwas_source',
+               'gwas_snp',
                'gwas_pvalue_description',
-               'gwas_odds_ratio', 'gwas_odds_ratio_ci_start',
-               'gwas_odds_ratio_ci_end', 'gwas_size',
-               'gwas_pmid', 'gwas_study', 'gwas_reported_trait', 'vep_terms',
+               'gwas_odds_ratio',
+               'gwas_odds_ratio_ci_start',
+               'gwas_odds_ratio_ci_end',
+               'gwas_size',
+               'gwas_pmid',
+               'gwas_study',
+               'gwas_reported_trait',
+               'vep_terms',
                # 'GTEx_Adipose_Subcutaneous', 'GTEx_Adipose_Visceral_Omentum',
                # 'GTEx_Adrenal_Gland',
                # 'GTEx_Artery_Aorta',
@@ -132,10 +145,13 @@ GTEX_DB = pd.read_csv(
     'databases/GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1.8_gene_median_tpm.tsv', sep='\t')
 
 GTEX_SIMILARITY_DB = pd.read_csv(
-    'databases/UCSC_GTEx_db.tsv', sep='\t', index_col=0)
+    'databases/UCSC_gtex_db.tsv', sep='\t', index_col=0)
 
 BLASTP_SIMILARITY_DB = pd.read_csv(
     'databases/UCSC_blastp_db.tsv', sep='\t', index_col=0)
+
+ATLAS_SIMILARITY_DB = pd.read_csv(
+    'databases/UCSC_atlas_db.tsv', sep='\t', index_col=0)
 
 GENE_INTERACTIONS_DB = pd.read_csv(
     'databases/UCSC_gene_interactions.tsv', sep='\t', index_col=0)
@@ -202,7 +218,7 @@ COL_DTYPES = {'afr': 'float16',
               'VEP': 'uint8',
               'Nearest': 'uint8'}
 
-PARAM_DIST_RF = {'max_depth': [5, 10, 15, 20, 30, 50, 100],
+PARAM_DIST_RF = {'max_depth': [5, 10, 15, 30, 50, 100],
                  'max_features': ['auto', 'sqrt', 'log2', None],
                  'min_samples_split': [2, 5, 10],
                  'min_samples_leaf': [1, 2, 4]}
@@ -217,4 +233,19 @@ PARAM_DIST_LR = {"C": np.logspace(-3, 3, 40),
 
 PARAM_DIST_DT = {'max_depth': [5, 10, 15, 30, 50, 100],
                  'min_samples_leaf': [1, 2, 3, 4],
-                 'min_samples_split': [2, 3, 4, 5]}
+                 'min_samples_split': [2, 3, 5, 10]}
+
+PARAM_DIST_ADA = {"learning_rate": np.logspace(-5, 0, 8),
+                  "algorithm": ['SAMME', 'SAMME.R']}
+
+WEIGHTS = {1:100, 0:1}
+
+UNDER_SAMPLE_COEF = 0.8 # Roughly balancing 
+
+MODELS = {'ada':'AdaBoosting',
+        'lr':'Logistic Regression',
+        'rf':'Random Forest',
+        'svc':'Support Vector Machine',
+        'dt':'Decision Tree'}
+
+THRESHOLD_VALUES = [0.01, 0.1] + [i for i in range(1, 99)]
