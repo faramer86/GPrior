@@ -1,3 +1,9 @@
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 import pandas as pd
 import numpy as np
 
@@ -25,49 +31,6 @@ DO_NOT_NEED = ['ld_snp_rsID',
                'gwas_study',
                'gwas_reported_trait',
                'vep_terms',
-               # 'GTEx_Adipose_Subcutaneous', 'GTEx_Adipose_Visceral_Omentum',
-               # 'GTEx_Adrenal_Gland',
-               # 'GTEx_Artery_Aorta',
-               # 'GTEx_Artery_Coronary',
-               # 'GTEx_Artery_Tibial',
-               # 'GTEx_Brain_Anterior_cingulate_cortex_BA24',
-               # 'GTEx_Brain_Caudate_basal_ganglia',
-               # 'GTEx_Brain_Cerebellar_Hemisphere',
-               # 'GTEx_Brain_Cerebellum',
-               # 'GTEx_Brain_Cortex',
-               # 'GTEx_Brain_Frontal_Cortex_BA9',
-               # 'GTEx_Brain_Hippocampus',
-               # 'GTEx_Brain_Hypothalamus',
-               # 'GTEx_Brain_Nucleus_accumbens_basal_ganglia',
-               # 'GTEx_Brain_Putamen_basal_ganglia',
-               # 'GTEx_Breast_Mammary_Tissue',
-               # 'GTEx_Cells_EBV-transformed_lymphocytes',
-               # 'GTEx_Cells_Transformed_fibroblasts',
-               # 'GTEx_Colon_Sigmoid',
-               # 'GTEx_Colon_Transverse',
-               # 'GTEx_Esophagus_Gastroesophageal_Junction',
-               # 'GTEx_Esophagus_Mucosa',
-               # 'GTEx_Esophagus_Muscularis',
-               # 'GTEx_Heart_Atrial_Appendage',
-               # 'GTEx_Heart_Left_Ventricle',
-               # 'GTEx_Liver',
-               # 'GTEx_Lung',
-               # 'GTEx_Muscle_Skeletal',
-               # 'GTEx_Nerve_Tibial',
-               # 'GTEx_Ovary',
-               # 'GTEx_Pancreas',
-               # 'GTEx_Pituitary',
-               # 'GTEx_Prostate',
-               # 'GTEx_Skin_Not_Sun_Exposed_Suprapubic',
-               # 'GTEx_Skin_Sun_Exposed_Lower_leg',
-               # 'GTEx_Small_Intestine_Terminal_Ileum',
-               # 'GTEx_Spleen',
-               # 'GTEx_Stomach',
-               # 'GTEx_Testis',
-               # 'GTEx_Thyroid',
-               # 'GTEx_Uterus',
-               # 'GTEx_Vagina',
-               # 'GTEx_Whole_Blood',
                'gnomad',
                'gnomad_sas',
                'gnomad_oth',
@@ -218,34 +181,38 @@ COL_DTYPES = {'afr': 'float16',
               'VEP': 'uint8',
               'Nearest': 'uint8'}
 
-PARAM_DIST_RF = {'max_depth': [5, 10, 15, 30, 50, 100],
+PARAM_DIST_RF = {'max_depth': [5, 10, 30, 50, 100],
                  'max_features': ['auto', 'sqrt', 'log2', None],
                  'min_samples_split': [2, 5, 10],
-                 'min_samples_leaf': [1, 2, 4]}
+                 'min_samples_leaf': [2, 3, 4]}
 
 
 PARAM_DIST_SVC = {'gamma': [1, 0.1, 0.001, 0.0001],
-                  'C': [0.01, 0.1, 1, 10, 100, 1000],
+                  'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
                   'kernel': ['linear', 'rbf']}
 
-PARAM_DIST_LR = {"C": np.logspace(-3, 3, 40),
+PARAM_DIST_LR = {"C": np.logspace(-5, 3, 50),
                  "penalty": ["l1", "l2"]}
 
-PARAM_DIST_DT = {'max_depth': [5, 10, 15, 30, 50, 100],
+PARAM_DIST_DT = {'max_depth': [5, 10, 15, 50, 100],
                  'min_samples_leaf': [1, 2, 3, 4],
                  'min_samples_split': [2, 3, 5, 10]}
 
-PARAM_DIST_ADA = {"learning_rate": np.logspace(-5, 0, 8),
+PARAM_DIST_ADA = {"learning_rate": np.logspace(-6, 0, 15),
                   "algorithm": ['SAMME', 'SAMME.R']}
 
-WEIGHTS = {1:100, 0:1}
+WEIGHTS = {1:90, 0:10}
 
 UNDER_SAMPLE_COEF = 0.8 # Roughly balancing 
 
-MODELS = {'ada':'AdaBoosting',
-        'lr':'Logistic Regression',
-        'rf':'Random Forest',
-        'svc':'Support Vector Machine',
-        'dt':'Decision Tree'}
+ADA_BASE = DecisionTreeClassifier(criterion='gini', class_weight=WEIGHTS)
 
-THRESHOLD_VALUES = [0.01, 0.1] + [i for i in range(1, 99)]
+MODELS = {
+    
+    'ADABoosting': [AdaBoostClassifier(base_estimator = ADA_BASE), PARAM_DIST_ADA],
+    'Random Forest': [RandomForestClassifier(bootstrap=True, n_estimators=10, class_weight=WEIGHTS, oob_score=False), PARAM_DIST_RF],
+    'Support Vector Machine': [SVC(probability=True, kernel ='rbf', C= 0.01, class_weight=WEIGHTS), PARAM_DIST_SVC],
+    'Logistic regression': [LogisticRegression(solver='liblinear', C= 0.01, class_weight=WEIGHTS), PARAM_DIST_LR],
+    'Decision Tree': [DecisionTreeClassifier(criterion='gini', class_weight=WEIGHTS), PARAM_DIST_DT]
+}
+

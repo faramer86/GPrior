@@ -1,25 +1,24 @@
 import pandas as pd
+from progress.spinner import Spinner
 import math
 import os
+import sys
 
 def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     """
     This function get median gene expression values for 53 tissues from gtex db
     """
-    new_df = pd.DataFrame()
-    new_df = new_df.assign(**GTEX_COLUMNS)
-    for index in df.index:
-        gene_name = df.loc[index]['gene_symbol']
-        try:
-            values = GTEX_DB[GTEX_DB['Description'] == gene_name].iloc[:, 2:]
-            if len(values) == 1:
-                new_df = new_df.append(values, ignore_index=True)
-            else:
-                values = pd.Series(GTEX_COLUMNS)
-                new_df = new_df.append(values, ignore_index=True)
-        except:
-            print('gtex exception!')
-            continue
+    new_df = pd.DataFrame().assign(**GTEX_COLUMNS)
+    spinner = Spinner('Adding fetures ')
+    for gene_name in df.index:
+        spinner.next()
+        values = GTEX_DB[GTEX_DB['Description'] == gene_name].iloc[:, 2:]
+        if len(values) == 1:
+            new_df = new_df.append(values, ignore_index=True)
+        else:
+            values = pd.Series(GTEX_COLUMNS)
+            new_df = new_df.append(values, ignore_index=True)
+    spinner.finish()
     return new_df
 
 
@@ -51,10 +50,8 @@ def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
         df_with_postgap_data, GTEX_DB, GTEX_COLUMNS)
     transformed_expression_df = transform_to_ranks(
         df_wth_expression_data, GTEX_COLUMNS)
-    combined_df = pd.concat([df_with_postgap_data.reset_index(
-        drop=True), transformed_expression_df], axis=1)
-    print('53 GTEx gene expression features are added')
-    return combined_df
+    transformed_expression_df.index = df_with_postgap_data.index 
+    return pd.concat([df_with_postgap_data, transformed_expression_df], axis=1)
 
 
 def add_gene_similarity_feature(df, db, causal_genes):
@@ -68,17 +65,16 @@ def add_gene_similarity_feature(df, db, causal_genes):
     see: process_input_file function
     """
     feature = list()
-    for gene in df['gene_symbol']:
+    for gene in df.index:
         if gene in db.index:
             gene_list = db.loc[gene, 'associated_genes']
             if type(gene_list) != float:
                 gene_list = gene_list.split(",")
                 s = sum(
-                    list(map(lambda x: x in causal_genes['gene_symbol'].values, gene_list)))
+                    list(map(lambda x: x in causal_genes.index.values, gene_list)))
                 feature.append(s)
             else:
                 feature.append(0)
         else:
             feature.append(0)
-    print('One of the UCSC gene similarity feature is added')
     return feature

@@ -1,38 +1,52 @@
 #!/usr/bin/env python3.6
 
 from modules import *
-from density_plots import create_density_plot
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(
-        description='This script analyse gwas data')
-    parser.add_argument('-i', '--postgap_path', required=True,
+    parser = argparse.ArgumentParser(prog='./gwaspriors.py',
+                            usage='%(prog)s [options]',
+                            description="""
+                            This script prioritize genes
+                            using gwas summary statistics.
+                            It has two modes:
+                            First, data preprocessing (use "--merge") 
+                            (Merging postgap data;
+                            Adding new features).
+                            Second, gene prioritization
+                            (PU-learning using ensemble classifier).
+                            """)
+    parser.add_argument('-i', '--input', required=False,
                         help='Path to file/folder with postgap output')
-    parser.add_argument('-g', '--genes', required=False,
+    parser.add_argument('-g', '--genes', required=True,
                         help='Path to file with names of causal genes')
-    parser.add_argument('-e', '--extended_list', required=False,
-                        help='Path to file with extended list of causal genes')
     parser.add_argument('-o', '--output', required=True,
                         help='Path to output')
+    parser.add_argument('-e', '--extended_list', required=False,
+                        help='Path to file with extended list of causal genes')
+    parser.add_argument('--merge', action='store_true',
+                        help='Switch to preprocessing mode')
     args = parser.parse_args()
-    input = import_postgap_file(args.postgap_path, COL_DTYPES)
+
     causal_genes = pd.read_csv(args.genes, sep='\t')
-    print('List of causal genes is imported.')
+
+    if args.merge:
+        input_file = import_postgap_file(args.input, COL_DTYPES)
+        process_input_file(input_file, causal_genes).to_csv(Path(args.output), sep='\t')
+        sys.exit("Done!")
+    
+    input_file = pd.read_csv(args.input, sep='\t')
     extended_list = pd.read_csv(args.extended_list, sep='\t')
-    print('Extended list of causal genes is imported.')
-    print('Processing input...')
-    ML_input = process_input_file(input, causal_genes)
-    print('Processing input is done...')
-    print('Launch classifier...')
-    probabilities = GeneClassifier(ML_input, causal_genes, extended_list).return_probability()
-    # print('Probabilities are returned...')
-    # print(f'Writing probabilities for genes to be causal to "{args.output}"')
-    ML_input.to_csv(Path(args.output), sep='\t', index=False)
-    # print('Create density plots of gene names from extended list...')
-    # if args.extended_list:
-    #     extended_list = pd.read_csv(args.extended_list, sep='\t')
-    #     print('Extended list of genes is imported...')
-    #     create_density_plot(probabilities, extended_list,
-    #                         os.path.split(args.output)[0])
+    n_genes_in_extended = number_of_intersections(extended_list['gene_symbol'], 
+                                                    input_file['gene_symbol'])
+    print(f'We found {n_genes_in_extended} genes in extended list!')
+    X, y = return_x_y(input_file, causal_genes)
+    print('Launch ensemble...\n')
+    ens = EnsembleClassifier(X, y, MODELS, extended_list)
+    ens.run_estimators()
+    probas = ens.best_scored_proba()
+    probas.to_csv(f'{args.output}', sep='\t', index=False)
+    print('Probabilities are returned...')
     print('Done!')

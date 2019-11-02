@@ -4,7 +4,8 @@ import argparse
 import glob
 import pandas as pd
 from pathlib import Path
-# sys.path.insert(0, os.getcwd() + '/gwaspriors')
 from var import *
+from modules import *
+from ensemble import *
 from InputProcessingFunctions import *
 from MLAutomationFunctions import *
