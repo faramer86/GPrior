@@ -50,6 +50,91 @@ DO_NOT_NEED = ['ld_snp_rsID',
                'ls_snp_is_gwas_snp',
                'r2']
 
+AGG = {
+ 'DHS':'max',
+ 'Fantom5':'max',
+ 'GERP':'max',
+ 'GTEx':'max',
+ 'GTEx_Adipose_Subcutaneous':'max',
+ 'GTEx_Adipose_Visceral_Omentum':'max',
+ 'GTEx_Adrenal_Gland':'max',
+ 'GTEx_Artery_Aorta':'max',
+ 'GTEx_Artery_Coronary':'max',
+ 'GTEx_Artery_Tibial':'max',
+ 'GTEx_Brain_Anterior_cingulate_cortex_BA24':'max',
+ 'GTEx_Brain_Caudate_basal_ganglia':'max',
+ 'GTEx_Brain_Cerebellar_Hemisphere':'max',
+ 'GTEx_Brain_Cerebellum':'max',
+ 'GTEx_Brain_Cortex':'max',
+ 'GTEx_Brain_Frontal_Cortex_BA9':'max',
+ 'GTEx_Brain_Hippocampus':'max',
+ 'GTEx_Brain_Hypothalamus':'max',
+ 'GTEx_Brain_Nucleus_accumbens_basal_ganglia':'max',
+ 'GTEx_Brain_Putamen_basal_ganglia':'max',
+ 'GTEx_Breast_Mammary_Tissue':'max',
+ 'GTEx_Cells_EBV-transformed_lymphocytes':'max',
+ 'GTEx_Cells_Transformed_fibroblasts':'max',
+ 'GTEx_Colon_Sigmoid':'max',
+ 'GTEx_Colon_Transverse':'max',
+ 'GTEx_Esophagus_Gastroesophageal_Junction':'max',
+ 'GTEx_Esophagus_Mucosa':'max',
+ 'GTEx_Esophagus_Muscularis':'max',
+ 'GTEx_Heart_Atrial_Appendage':'max',
+ 'GTEx_Heart_Left_Ventricle':'max',
+ 'GTEx_Liver':'max',
+ 'GTEx_Lung':'max',
+ 'GTEx_Muscle_Skeletal':'max',
+ 'GTEx_Nerve_Tibial':'max',
+ 'GTEx_Ovary':'max',
+ 'GTEx_Pancreas':'max',
+ 'GTEx_Pituitary':'max',
+ 'GTEx_Prostate':'max',
+ 'GTEx_Skin_Not_Sun_Exposed_Suprapubic':'max',
+ 'GTEx_Skin_Sun_Exposed_Lower_leg':'max',
+ 'GTEx_Small_Intestine_Terminal_Ileum':'max',
+ 'GTEx_Spleen':'max',
+ 'GTEx_Stomach':'max',
+ 'GTEx_Testis':'max',
+ 'GTEx_Thyroid':'max',
+ 'GTEx_Uterus':'max',
+ 'GTEx_Vagina':'max',
+ 'GTEx_Whole_Blood':'max',
+ 'Nearest':'max',
+ 'PCHiC':'max',
+ 'Regulome':'max',
+ 'VEP':'max',
+ 'VEP_reg':'max',
+ 'rank':'min',
+ 'score':'max',
+ 'vep_mean':'max',
+ 'vep_sum':'max',
+}
+
+AGG_mean = {
+ 'DHS':'mean',
+ 'Fantom5':'mean',
+ 'GERP':'mean',
+ 'GTEx':'mean',
+ 'Nearest':'mean',
+ 'PCHiC':'mean',
+ 'Regulome':'mean',
+ 'VEP':'mean',
+ 'VEP_reg':'mean',
+ 'rank':'mean',
+ 'score':'mean'} 
+
+AGG_mean_names = ['DHS_mean',
+ 'Fantom5_mean',
+ 'GERP_mean',
+ 'GTEx_mean',
+ 'Nearest_mean',
+ 'PCHiC_mean',
+ 'Regulome_mean',
+ 'VEP_mean',
+ 'VEP_reg_mean',
+ 'rank_mean',
+ 'score_mean']
+
 GTEX_COLUMNS = {'Adipose - Subcutaneous': None,
                 'Adipose - Visceral (Omentum)': None,
                 'Adrenal Gland': None,
@@ -119,6 +204,9 @@ ATLAS_SIMILARITY_DB = pd.read_csv(
 GENE_INTERACTIONS_DB = pd.read_csv(
     'databases/UCSC_gene_interactions.tsv', sep='\t', index_col=0)
 
+REACTOME_DB = pd.read_csv(
+    'databases/FIsInGene_122718_with_annotations.txt', sep='\t')
+
 COL_DTYPES = {'afr': 'float16',
               'amr': 'float16',
               'eas': 'float16',
@@ -181,17 +269,16 @@ COL_DTYPES = {'afr': 'float16',
               'VEP': 'uint8',
               'Nearest': 'uint8'}
 
-PARAM_DIST_RF = {'max_depth': [5, 10, 30, 50, 100],
-                 'max_features': ['auto', 'sqrt', 'log2', None],
-                 'min_samples_split': [2, 5, 10],
-                 'min_samples_leaf': [2, 3, 4]}
+PARAM_DIST_RF = {'max_depth': [5, 10, 30, 50],
+                 'max_features': ['auto', 'sqrt', 'log2'],
+                 'min_samples_split': [2, 5],
+                 'min_samples_leaf': [2, 3]}
 
 
-PARAM_DIST_SVC = {'gamma': [1, 0.1, 0.001, 0.0001],
-                  'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
-                  'kernel': ['linear', 'rbf']}
+PARAM_DIST_SVC = {'gamma': [1, 0.1, 0.01, 0.001, 0.0001],
+                  'C': [0.001, 0.01, 0.1, 1]}
 
-PARAM_DIST_LR = {"C": np.logspace(-5, 3, 50),
+PARAM_DIST_LR = {"C": np.logspace(-5, 3, 40),
                  "penalty": ["l1", "l2"]}
 
 PARAM_DIST_DT = {'max_depth': [5, 10, 15, 50, 100],
@@ -201,18 +288,25 @@ PARAM_DIST_DT = {'max_depth': [5, 10, 15, 50, 100],
 PARAM_DIST_ADA = {"learning_rate": np.logspace(-6, 0, 15),
                   "algorithm": ['SAMME', 'SAMME.R']}
 
-WEIGHTS = {1:90, 0:10}
+WEIGHTS = {1:9, 0:1}
+ 
+THRESHOLD_RANGE = [0.01, 0.1] + [i for i in range(1, 98)]
 
-UNDER_SAMPLE_COEF = 0.8 # Roughly balancing 
+PARAMS = {
+    
+    'Support Vector Machine': PARAM_DIST_SVC,
+    'ADABoosting': PARAM_DIST_ADA,
+    'Random Forest': PARAM_DIST_RF,
+    'Logistic regression': PARAM_DIST_LR,
+    'Decision Tree' : PARAM_DIST_DT 
+}
 
 ADA_BASE = DecisionTreeClassifier(criterion='gini', class_weight=WEIGHTS)
 
 MODELS = {
-    
-    'ADABoosting': [AdaBoostClassifier(base_estimator = ADA_BASE), PARAM_DIST_ADA],
+    'Logistic regression': [LogisticRegression(solver='liblinear', class_weight=WEIGHTS), PARAM_DIST_LR],    
+    'Support Vector Machine': [SVC(probability=True, C=0.01, gamma=0.0001, class_weight=WEIGHTS), PARAM_DIST_SVC],
+    'ADABoosting': [AdaBoostClassifier(base_estimator = ADA_BASE, learning_rate=0.01), PARAM_DIST_ADA],  
     'Random Forest': [RandomForestClassifier(bootstrap=True, n_estimators=10, class_weight=WEIGHTS, oob_score=False), PARAM_DIST_RF],
-    'Support Vector Machine': [SVC(probability=True, kernel ='rbf', C= 0.01, class_weight=WEIGHTS), PARAM_DIST_SVC],
-    'Logistic regression': [LogisticRegression(solver='liblinear', C= 0.01, class_weight=WEIGHTS), PARAM_DIST_LR],
-    'Decision Tree': [DecisionTreeClassifier(criterion='gini', class_weight=WEIGHTS), PARAM_DIST_DT]
+    'Decision Tree': [DecisionTreeClassifier(class_weight=WEIGHTS), PARAM_DIST_DT]
 }
-

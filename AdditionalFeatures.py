@@ -4,6 +4,18 @@ import math
 import os
 import sys
 
+def add_reactome_feature(df, db, causal_genes):
+    feature = list()
+    for gene in df.index:
+        if gene in db.Gene1.values:
+            n = db.query(f'Gene1 == "{gene}"')['Gene2'] \
+             .map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0) \
+             .sum()
+            feature.append(n)
+        else:
+            feature.append(0)
+    return feature
+
 def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     """
     This function get median gene expression values for 53 tissues from gtex db
@@ -28,14 +40,16 @@ def transform_to_ranks(df, GTEX_COLUMNS):
     The lowest value will be 0 and the highest expression value 53.
     """
     gtex_col = list(GTEX_COLUMNS.keys())
-    for index in df.index:
+
+    for gene_name in df.index:
         try:
             row_list = [x if math.isnan(
-                x) == False else 0 for x in df[gtex_col].loc[index]]
+                x) == False else 0 for x in df[gtex_col].loc[gene_name]]
             ranks = {value: rank for rank,
                      value in enumerate(sorted(set(row_list)))}
             ranked = [ranks[i] for i in row_list]
-            df.loc[index, gtex_col] = ranked
+            df.loc[gene_name, gtex_col] = ranked
+
         except:
             continue
     return df
@@ -71,7 +85,7 @@ def add_gene_similarity_feature(df, db, causal_genes):
             if type(gene_list) != float:
                 gene_list = gene_list.split(",")
                 s = sum(
-                    list(map(lambda x: x in causal_genes.index.values, gene_list)))
+                    list(map(lambda x: x in causal_genes.gene_symbol.values, gene_list)))
                 feature.append(s)
             else:
                 feature.append(0)

@@ -20,7 +20,7 @@ def process_x(x):
     print('Normalizing..')
     norm_x = scaler.fit_transform(x)
     print('Feature aggregation..')
-    new_x = pd.DataFrame(FeatureAgglomeration(n_clusters=50).fit_transform(norm_x), index=gene_names)
+    new_x = pd.DataFrame(FeatureAgglomeration(n_clusters=15).fit_transform(norm_x), index=gene_names)
     return new_x
 
 def return_x_y(df, causal_genes):
