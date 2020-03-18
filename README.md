@@ -48,7 +48,10 @@ deactivate
 
 ## Usage
 
-#### gprior.py
+### gprior.py
+
+
+### Arguments:
 
 ```bash
   -h, --help            show this help message and exit
@@ -68,7 +71,6 @@ deactivate
   --set_seed            Switch it on if you want reproducibility
 
 ```
-
 example:
 
 ```bash
@@ -78,11 +80,32 @@ example:
     -ass test_ass.tsv \ # Algorithm selection set of genes (one column - "gene_symbol")
     -o test_output.tsv # output
 ```
+## Inpput example:
+
+1) Input file (`-i`):
+
+ |**gene_symbol**| **feature 1** |**feature 2**|**...**|**feature n**|
+ |:----:| :--------------------: |:--------------------:|---|:--------------------:|
+ |GENE SYMBOL 1| ... </br>  | ... </br> |...|... </br> |
+ |...|...| ... |...|...|...|
+ |GENE SYMBOL n| ... </br> |... </br> |...|... </br>|
 
 
+1) Algorithm selection set (`-ass`) and True gene set (`-ts`):
 
-## Arguments
+| **gene_symbol** | 
+| :-------------: | 
+| LPL             |   
+| FGD5            |
+| INPP5B          |
 
+## Output example:
+
+| **gene_symbol** | **Probability** | 
+| :-------------: | :--------------:| 
+| LPL             |    90.27        |   
+| FGD5            |    87.91        |
+| INPP5B          |    86.46        |
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
