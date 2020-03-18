@@ -11,7 +11,7 @@ def filter_data(df):
     bool_index = df.apply(lambda x: sum(x == 0), axis=1) <= 85
     return df.loc[bool_index, ]
 
-def process_x(x):
+def process_x(x, n_clusters):
     """
     Normalize and remove multicollineaarity usind FA
     """
@@ -23,9 +23,14 @@ def process_x(x):
     except ValueError:
         sys.exit('(INPUT) Please, check the requirements for input file!')
     print('Feature aggregation..')
-    n_cls = int(len(list(x))/2)
+    if n_clusters:
+        n_clf = n_clusters
+    elif len(list(x)) > 1:
+        n_cls = int(len(list(x))/2)
+    else:
+        n_clf = 1
     return pd.DataFrame(
-           FeatureAgglomeration(n_clusters=n_cls).fit_transform(norm_x), 
+           FeatureAgglomeration(n_clusters=n_clf).fit_transform(norm_x), 
            index=gene_names)
     
 
@@ -43,15 +48,15 @@ def prepare_y(df, causal_genes):
     """
     return df.gene_symbol.map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0)
 
-def return_x_y(df, causal_genes):
+def return_x_y(df, causal_genes, n_clusters):
     """
     Return X - df with filled name
     y - Series with supervided answers (1 or 0) for each gene
     """
-    filtered_df = filter_data(df)
-    y = prepare_y(filtered_df, causal_genes)
+    #filtered_df = filter_data(df)
+    y = prepare_y(df, causal_genes)
     if sum(y) <= 5:
         raise AssertionError("Numer of causal genes found <= 5. Add more causal genes.")
-    x = process_x(prepare_df(filtered_df))
+    x = process_x(prepare_df(df), n_clusters)
     return x, y    
     
