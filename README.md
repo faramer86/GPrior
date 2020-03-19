@@ -2,6 +2,13 @@
 
 GPrior is a Gene Prioritization tool that uses PU learning to prioritize candidate genes based on their similarity with a set of known positive examples. As a result it returns a table with probabilities for each gene.
 
+# Table of Contents
+
+1. [Usage](#usage)
+2. [Dependencies](#dependencies)
+
+## Usage
+
 In order to perform prioritization user can repeat our pipeline from the article or compile his own table with features.
 
 ## Dependencies
@@ -48,6 +55,8 @@ deactivate
 
 ## Usage
 
+There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to prioritize genes based on you own table of features 
+
 ### gprior.py
 
 
@@ -80,9 +89,9 @@ example:
     -ass test_ass.tsv \ # Algorithm selection set of genes (one column - "gene_symbol")
     -o test_output.tsv # output
 ```
-## Inpput example:
+## Input examples:
 
-1) Input file (`-i`):
+1) `./gprior.py` Input file (`-i`):
 
  |**gene_symbol**| **feature 1** |**feature 2**|**...**|**feature n**|
  |:----:| :--------------------: |:--------------------:|---|:--------------------:|
@@ -90,8 +99,19 @@ example:
  |...|...| ... |...|...|...|
  |GENE SYMBOL n| ... </br> |... </br> |...|... </br>|
 
+2) `./process_postgap.py` Input file (`-i`):
 
-1) Algorithm selection set (`-ass`) and True gene set (`-ts`):
+ |**gene_symbol**| ** SNPs ** |**feature 2**|**...**|**feature n**|
+ |:----:| :--------------------: |:--------------------:|---|:--------------------:|
+ |GENE SYMBOL 1| SNP1 </br>  | ... </br> |...|... </br> |
+ |GENE SYMBOL 1| SNP2 </br>  | ... </br> |...|... </br> |
+ |GENE SYMBOL 1| SNP3 </br>  | ... </br> |...|... </br> |
+ |...|...| ... |...|...|...|
+ |GENE SYMBOL n| ... </br> |... </br> |...|... </br>|
+
+For more detailes see: https://github.com/Ensembl/postgap
+
+3) Algorithm selection set (`-ass`) and True gene set (`-ts`):
 
 | **gene_symbol** | 
 | :-------------: | 
@@ -106,6 +126,7 @@ example:
 | LPL             |    90.27        |   
 | FGD5            |    87.91        |
 | INPP5B          |    86.46        |
+|   ...           |     ...         |
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
