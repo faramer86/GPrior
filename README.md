@@ -1,3 +1,5 @@
+![](logo.png)
+
 # Gene Prioritization tool (GPrior)
 
 GPrior is a Gene Prioritization tool that uses PU learning to prioritize candidate genes based on their similarity with a set of known positive examples. As a result it returns a table with probabilities for each gene.
