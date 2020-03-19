@@ -2,22 +2,27 @@
 
 GPrior is a Gene Prioritization tool that uses PU learning to prioritize candidate genes based on their similarity with a set of known positive examples. As a result it returns a table with probabilities for each gene.
 
-# Table of Contents
+## Table of Contents
 
 1. [Usage](#usage)
 2. [Dependencies](#dependencies)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Features](#features)
+6. [Input example](#input-example)
+7. [Output example](#output-example)
 
 ## Usage
 
 In order to perform prioritization user can repeat our pipeline from the article or compile his own table with features.
 
-## Dependencies
+## Dependencies 
 
 Make sure that you have `python` version >= 3.6 and latest version of `pip`. You can check it by running:
 
 ```bash
- $ python --version
- $ pip --version
+ python --version
+ pip --version
 ```
 
 If you do not have Python, please install the latest 3.x version from python.org.
@@ -30,35 +35,55 @@ pip install virtualenv
 
 If you have any problems with the installation or usage  of `virtualenv` be free to consult the official documentation: https://virtualenv.pypa.io/en/latest/
 
+## Installation
+
+Firstly, clone GPrior repository to your local machine. 
+
+```bash
+git clone https://github.com/faramer86/GPrior.git
+```
+
 Go to the GPrior repository, create and launch virtual environment:
 
-```
+```bash
 virtualenv vprior
 source vprior/bin/activate
 ```
 
 If you see `(vprior)` prefix in your terminal, then everything goes well so far.
 
-Install the requirments from the home repository:
+Install the requirments from the home repository. 
+This command will install all the necessary python packages:
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
-This command will install all the necessary python packages. You can go to the launching `.gprior.py`, it should work.
+Now you can launch `gprior.py`, it should work.
 
-Do not forget to exit virtual environment after work:
+#### NOTE:
 
-```
+1) Do not forget to exit virtual environment after you are done:
+
+```bash
 deactivate
+```
+
+2) Do not forget to activate `vprior` everytime you want to launch tool:
+
+```bash
+source vprior/bin/activate
 ```
 
 ## Usage
 
-There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to prioritize genes based on you own table of features 
+There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to prioritize genes based on your own table of features - use `gprior.py`. If you want to reproduce pipeline from the article - use `process_postgap.py`. For more detailes read futher.
 
 ### gprior.py
 
+`gprior.py` uses table of features and sets of causal genes as an input (see **Input examples** section) and perform gene prioritization. It consists of 5 PU Bagging classifiers. All the predictions sre combined using optimal combination approach (see article). True gene set (TS) is used for training and algorithm selection set (ASS) for optimal combination and quality evaluation.
+
+We add several useful tunable functional features. See `--help` page:
 
 ### Arguments:
 
@@ -89,7 +114,12 @@ example:
     -ass test_ass.tsv \ # Algorithm selection set of genes (one column - "gene_symbol")
     -o test_output.tsv # output
 ```
-## Input examples:
+
+### process_postgap.py
+
+## Features
+
+## Input example:
 
 1) `./gprior.py` Input file (`-i`):
 
