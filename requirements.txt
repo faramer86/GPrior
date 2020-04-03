@@ -1,6 +1,10 @@
+dask==2.13.0
+fsspec==0.7.1
 joblib==0.14.1
+locket==0.2.0
 numpy==1.18.2
 pandas==1.0.3
+partd==1.1.0
 progress==1.5
 python-dateutil==2.8.1
 pytz==2019.3
@@ -8,3 +12,4 @@ scikit-learn==0.22.2.post1
 scipy==1.4.1
 six==1.14.0
 sklearn==0.0
+toolz==0.10.0

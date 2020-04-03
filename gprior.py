@@ -16,30 +16,29 @@ if __name__ == '__main__':
                             table with probabilities for each gene.
                             """)
     parser.add_argument('-i', '--input', required=True,  metavar='',
-                        help='Path to file with gene/features table')
+                        help='Path to gene-features table')
     parser.add_argument('-ts', '--true_set', required=True, metavar='',
-                        help='Path to file with gene symbols of causal genes (True gene set)')
+                        help='Path to table with gene symbols of causal genes (True gene set)')
     parser.add_argument('-aes', '--algorithm_evaluation_set', required=False,metavar='',
                         help='Path to file with algorithm evaluation set')
     parser.add_argument('-o', '--output', required=True, metavar='',
-                        help='Path to output')
+                        help='Path to output file')
     parser.add_argument('-n', '--n_bootstrap', type=int, required=False, metavar='',
                         help='(default=15) Number of bootstraps for PU Bagging')
     parser.add_argument('-k', '--k_clusters', type=int, required=False, metavar='',
-                        help='(default=n_features/2) Number of clusters for Feature Agglomeration')
+                        help='(default=n_features) Number of clusters for Feature Agglomeration')
     parser.add_argument('-s', '--s_coef', type=float, required=False, metavar='',
                         help='(default=1) Sampling coefficient')
     parser.add_argument('--drop_aes', action='store_true', required=False,
-                        help='(default=False) Perform pipeline without ASS and qc. \
+                        help='(positional; default=False) Perform pipeline without AES and qc. \
                         Instead of optimal combination - simple mean will be used')
     parser.add_argument('--add_features', action='store_true', required=False,
-                        help='(default=False) Add additional featutes to the provided table \
-                        For detailed features description see github repo.')
+                        help='(positional; default=False) Add additional featutes to the provided table')
     parser.add_argument('--tune', action='store_true', required=False,
-                        help='(default=False) Tune hyperparameters of the model \
+                        help='(positional; default=False) Tune hyperparameters of the model \
                         It significently slow down training process. Do not use it with high n.')
     parser.add_argument('--set_seed', action='store_true', required=False,
-                        help='(default=False) Switch it on if you want reproducibility')                  
+                        help='(positional; default=False) Switch it on if you want reproducibility')                  
     
     args = parser.parse_args()
     

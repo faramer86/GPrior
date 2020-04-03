@@ -22,9 +22,9 @@ if __name__ == '__main__':
                             This script helps to aggregate postgap
                             output for subsequent GPrior usage.
                             """)
-    parser.add_argument('-i', '--input', required=True,
+    parser.add_argument('-i', '--input', required=True, metavar='',
                         help='Path to file/folder with postgap output')
-    parser.add_argument('-o', '--output', required=True,
+    parser.add_argument('-o', '--output', required=True, metavar='',
                         help='Path to output')
     
     args = parser.parse_args()
