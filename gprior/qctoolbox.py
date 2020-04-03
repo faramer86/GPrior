@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
-from main_module.var import *
+from gprior.var import *
 
 def pu_score(true_y, pred_y):
     """
@@ -61,6 +61,7 @@ def give_summary(wmean, threshold_range, true_y, thr=False, eAUC=False):
     Depends on thr value, it return maximal PU score
     or maximal PU score with optimal probability threshold
     """
+    #threshold_range = wmean
     qc_range = give_qc_range(wmean, threshold_range, true_y)
     qc_coef = max(qc_range)
     if eAUC:

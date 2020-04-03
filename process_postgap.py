@@ -1,43 +1,40 @@
 #!/usr/bin/env python3.6
 
-from modules import *
-import GPriorPostgapImportProcessingFunctions as import_fun
-import MLAutomationFunctions as proc_fun
-import AdditionalFeatures as proc_fts
+import sys
+import os
+import argparse
+import glob
+import warnings
+import pandas as pd
+from pathlib import Path
+import dask.dataframe as dd
+from gprior.var import NEED
+from gprior.intoolbox import give_path, merge
+from gprior.AdditionalFeatures import add_nsnp  
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(prog='./gprior.py',
+    parser = argparse.ArgumentParser(prog='./process_postgap.py',
                             usage='%(prog)s [options]',
                             description="""
-                            -//-
+                            This script helps to aggregate postgap
+                            output for subsequent GPrior usage.
                             """)
     parser.add_argument('-i', '--input', required=True,
                         help='Path to file/folder with postgap output')
     parser.add_argument('-o', '--output', required=True,
                         help='Path to output')
-    parser.add_argument('--merge', action='store_true', required=False,
-                        help='-//-')
-    parser.add_argument('--aggregate', action='store_true', required=False,
-                        help='-//-')
     
     args = parser.parse_args()
-
-    if args.merge:
-        try:
-            input_file = import_fun.import_postgap_file(args.input, COL_DTYPES)
-        except ZeroDivisionError:
-            print('\nThere are no .tsv files in repository!')
-            sys.exit()
-        input_file.to_csv(Path(args.output), sep='\t')
-        sys.exit("Done!")
-
-    if args.aggregate:
-        try:
-            input_file = import_fun.import_merged_files(args.input)
-            input_file.to_csv(f'{args.output}', sep='\t')
-        except ZeroDivisionError:
-            print('\nThere are no .tsv files in repository!')
-            sys.exit()
-        sys.exit("Done!")
+    
+    tmp = dd.read_csv(give_path(args.input), sep='\t',
+                                             usecols = NEED,
+                                             assume_missing=True)
+    print('Merging...')
+    df = merge(tmp)
+    df.columns = ['_'.join(col).strip() for col in df.columns.values]
+    df['nSNP'] = add_nsnp(df, tmp)   
+    df.to_csv(args.output, sep='\t')
+    sys.exit("Done!")

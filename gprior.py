@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 
-from main_module.modules import *
+from gprior.modules import *
 
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -15,54 +15,70 @@ if __name__ == '__main__':
                             a set of known positive examples. As a result it returns a
                             table with probabilities for each gene.
                             """)
-    parser.add_argument('-i', '--input', required=True,
+    parser.add_argument('-i', '--input', required=True,  metavar='',
                         help='Path to file with gene/features table')
-    parser.add_argument('-ts', '--true_set', required=True,
+    parser.add_argument('-ts', '--true_set', required=True, metavar='',
                         help='Path to file with gene symbols of causal genes (True gene set)')
-    parser.add_argument('-ass', '--algorithm_selection_set', required=False,
-                        help='Path to file with algorithm selection set')
-    parser.add_argument('-o', '--output', required=True,
+    parser.add_argument('-aes', '--algorithm_evaluation_set', required=False,metavar='',
+                        help='Path to file with algorithm evaluation set')
+    parser.add_argument('-o', '--output', required=True, metavar='',
                         help='Path to output')
-    parser.add_argument('--drop_qc', action='store_true', required=False,
-                        help='(default=False) Perform pipeline without extended list and qc. \
-                        Instead of optimal combination - use simple mean')
+    parser.add_argument('-n', '--n_bootstrap', type=int, required=False, metavar='',
+                        help='(default=15) Number of bootstraps for PU Bagging')
+    parser.add_argument('-k', '--k_clusters', type=int, required=False, metavar='',
+                        help='(default=n_features/2) Number of clusters for Feature Agglomeration')
+    parser.add_argument('-s', '--s_coef', type=float, required=False, metavar='',
+                        help='(default=1) Sampling coefficient')
+    parser.add_argument('--drop_aes', action='store_true', required=False,
+                        help='(default=False) Perform pipeline without ASS and qc. \
+                        Instead of optimal combination - simple mean will be used')
     parser.add_argument('--add_features', action='store_true', required=False,
                         help='(default=False) Add additional featutes to the provided table \
                         For detailed features description see github repo.')
+    parser.add_argument('--tune', action='store_true', required=False,
+                        help='(default=False) Tune hyperparameters of the model \
+                        It significently slow down training process. Do not use it with high n.')
     parser.add_argument('--set_seed', action='store_true', required=False,
-                        help='(default=False) Switch it on if you want reproducibility')
-    parser.add_argument('-n', '--n_bootstrap', type=int, required=False,
-                        help='(default=15) Number of bootstraps for PU Bagging')
-    parser.add_argument('-k', '--k_clusters', type=int, required=False,
-                        help='(default=n_features/2) Number of clusters for Feature Agglomeration')
+                        help='(default=False) Switch it on if you want reproducibility')                  
     
     args = parser.parse_args()
     
-    input_file = import_fun.import_file(args.input)
-    causal_genes = import_fun.import_file(args.true_set)
+    input_file = INtoolbox.import_file(args.input)
+    causal_genes = INtoolbox.import_file(args.true_set)
 
+    if args.algorithm_evaluation_set:
+        aes = INtoolbox.import_file(args.algorithm_evaluation_set)
+        n_aes = INtoolbox.find_genes(aes.gene_symbol, input_file.gene_symbol)
+        print(f'There are {n_aes} genes from AES found in input file!')
+    else:
+        print('NOTE: You have not specified AES set!',
+              'NOTE: Average prediction will be calculated!', sep='\n')
     
-    if args.drop_qc == False:
-        ass = import_fun.import_file(args.algorithm_selection_set)
-        n_ass = import_fun.find_genes(ass.gene_symbol, input_file.gene_symbol)
-        print(f'We found {n_ass} genes in ASS!')
-    n_ts = import_fun.find_genes(causal_genes.gene_symbol, input_file.gene_symbol)
-    print(f'We found {n_ts} genes from TS in provided file!')
+    n_ts = INtoolbox.find_genes(causal_genes.gene_symbol, input_file.gene_symbol)
+    print(f'There are {n_ts} genes from TS found in input file!')
 
     if args.add_features:
         input_file = proc_fts.add_features(input_file, causal_genes)
 
-    X, y = proc_fun.return_x_y(input_file,
+    X, y = MLtoolbox.return_x_y(input_file,
                                causal_genes,
-                               n_clusters=import_fun.give_k(args.k_clusters, input_file))
+                               k_clusters=INtoolbox.give_k(args.k_clusters, input_file))
 
-    print('Launch ensemble...')
-
-    ens = EnsembleClassifier(X, y, MODELS, ass, 
+    ens = EnsembleClassifier(X, y, MODELS, 
                              set_seed=args.set_seed,
-                             n_bootstrap=import_fun.give_n(args.n_bootstrap))
-    ens.run_estimators()
-    probas = ens.best_scored_proba()
-    probas.to_csv(f'{args.output}', sep='\t', index=False)
-    print('Probabilities are returned...')
+                             tune=args.tune,
+                             n_bootstrap=INtoolbox.give_n(args.n_bootstrap),
+                             s_coef=INtoolbox.give_s(args.s_coef))
+    
+    if not args.drop_aes and args.algorithm_evaluation_set:
+        ens.set_ass(aes)
+        ens.set_ytrue()
+        ens.run_estimators()
+        probas = ens.best_scored_proba()
+    else:
+        ens.run_estimators()
+        probas = ens.get_prediction_set()
+
+    probas.to_csv(args.output, sep='\t', index=False)
+
     print('Done!')

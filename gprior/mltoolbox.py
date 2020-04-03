@@ -17,18 +17,16 @@ def process_x(x, n_clusters):
     """
     gene_names = x.index
     scaler = RobustScaler()
-    print('Normalizing..')
     try:
         norm_x = scaler.fit_transform(x)
     except ValueError:
         sys.exit('(INPUT) Please, check the requirements for input file!')
-    print('Feature aggregation..')
     if n_clusters:
         n_clf = n_clusters
-    elif len(list(x)) > 1:
-        n_cls = int(len(list(x))/2)
+    elif len(list(x)) >= 1:
+        n_cls = len(list(x))
     else:
-        n_clf = 1
+        sys.exit('There are no features!')
     return pd.DataFrame(
            FeatureAgglomeration(n_clusters=n_clf).fit_transform(norm_x), 
            index=gene_names)
@@ -48,7 +46,7 @@ def prepare_y(df, causal_genes):
     """
     return df.gene_symbol.map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0)
 
-def return_x_y(df, causal_genes, n_clusters):
+def return_x_y(df, causal_genes, k_clusters):
     """
     Return X - df with filled name
     y - Series with supervided answers (1 or 0) for each gene
@@ -57,6 +55,6 @@ def return_x_y(df, causal_genes, n_clusters):
     y = prepare_y(df, causal_genes)
     if sum(y) <= 5:
         raise AssertionError("Numer of causal genes found <= 5. Add more causal genes.")
-    x = process_x(prepare_df(df), n_clusters)
+    x = process_x(prepare_df(df), k_clusters)
     return x, y    
     

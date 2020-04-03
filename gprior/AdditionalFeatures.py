@@ -1,9 +1,18 @@
 import pandas as pd
-from main_module.var import *
+from gprior.var import *
 from progress.spinner import Spinner
+import dask.dataframe as dd
 import math
 import os
 import sys
+
+def add_nsnp(df, tmp):
+    return list(dd.concat([tmp]) \
+                  .fillna(0)\
+                  .groupby('gene_symbol')\
+                  .count()\
+                  .score\
+                  .compute())
 
 def add_reactome_feature(df, db, causal_genes):
     feature = list()
