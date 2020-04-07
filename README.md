@@ -1,10 +1,10 @@
 ![](logo.png)
 
-# Gene Prioritization tool (GPrior)
+# **Gene Prioritization tool (GPrior)**
 
 GPrior is a Gene Prioritization tool that uses PU learning to prioritize candidate genes based on their similarity with a set of known positive examples. As a result it returns a table with probabilities for each gene.
 
-## Table of Contents
+## **Table of Contents**
 
 1. [Dependencies](#dependencies)
 2. [Installation](#installation)
@@ -14,7 +14,7 @@ GPrior is a Gene Prioritization tool that uses PU learning to prioritize candida
 6. [Output example](#output-example)
 7. [References](#reference)
 
-## Dependencies 
+## **Dependencies** 
 
 Make sure that you have `python` version >= 3.6 and latest version of `pip`. You can check it by running:
 
@@ -25,7 +25,7 @@ Make sure that you have `python` version >= 3.6 and latest version of `pip`. You
 
 If you do not have Python, please install the latest 3.x version from python.org.
 
-In order GPrior to be cross-platform we use `virtualenv`. If you do not have it you can install it using `pip` (use `sudo` if necessary):
+In order to be cross-platform we uses `virtualenv`. If you do not have it you can install it using `pip` (use `sudo` if necessary):
 
 ```bash
 pip install virtualenv
@@ -33,7 +33,7 @@ pip install virtualenv
 
 If you have any problems with the installation or usage of `virtualenv` be free to consult the official documentation: https://virtualenv.pypa.io/en/latest/
 
-## Installation
+## **Installation**
 
 Firstly, clone GPrior repository to your local machine. 
 
@@ -57,7 +57,7 @@ This command will install all the necessary python packages:
 pip install -r requirements.txt
 ```
 
-Now you can launch `gprior.py`, it should work.
+**Now you can launch `gprior.py`, it should work!**
 
 #### NOTE:
 
@@ -73,15 +73,15 @@ deactivate
 source vprior/bin/activate
 ```
 
-## Usage
+## **Usage**
 
-GPrior provide user interface for tuning and training Positive-Unlabeled classifier. Minimum input: set with positive examples and dataframe (rows - gene symbols, columns - gene features). In order to perform prioritization, user can try to repeat our pipeline from the article (see "Reference" section) or compile his own table with features. 
+GPrior is a commandline tool that provides user interface for tuning and training Positive-Unlabeled classifier. Minimum input: table with positive examples (gene symbols) and dataframe (rows - gene symbols, columns - gene features). For more details/examples see sections below. In order to perform prioritization, user can try to repeat our pipeline from the article (see **Reference** section) or compile his own table with features. 
 
 There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to prioritize genes based on your own table of features - use `gprior.py`. If you want to reproduce pipeline from the article - use `process_postgap.py` for postgap output processing and only then use `gprior.py`. For more details read futher.
 
 ### process_postgap.py
 
--//-
+This script allows you to summarize postgap output and make gene-level table for subsequent analysis. All the arguments are pretty straigtforward. For more details see **Input examples** section.
 
 ```bash
   -h, --help      show this help message and exit
@@ -89,15 +89,13 @@ There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to
   -o , --output   Path to output
 ```
 
-
 ### gprior.py
 
-`gprior.py` uses table of features and sets of causal genes as an input (see **Input examples** section) and perform gene prioritization. 
+`gprior.py` perfor gene prioritization using table of features and sets of causal genes as an input (see **Input examples** section). 
 
+It consists of 5 PU Bagging classifiers. All the predictions are combined using optimal combination approach (see article) or simple mean. The main difference between this two approaches is that if you do not have enough data for AES compiling, so you can't evaluate each PU bagging prediction quality and find the best combination, so then simple mean between all the predictions is calculated (just do not specify `-aes` argument). Otherwise, true gene set (TS) is used for training and algorithm selection set (ASS) for optimal combination finding and quality evaluation.
 
-It consists of 5 PU Bagging classifiers. All the predictions are combined using optimal combination approach (see article). True gene set (TS) is used for training and algorithm selection set (ASS) for optimal combination and quality evaluation.
-
-We add several useful tunable functional features. See `--help` page:
+We add several useful tunable parameters. See `--help` page:
 
 ### Arguments:
 
@@ -113,9 +111,6 @@ We add several useful tunable functional features. See `--help` page:
   -k , --k_clusters     (default=n_features) Number of clusters for Feature
                         Agglomeration
   -s , --s_coef         (default=1) Sampling coefficient
-  --drop_aes            (positional; default=False) Perform pipeline without
-                        AES and qc. Instead of optimal combination - simple
-                        mean will be used
   --add_features        (positional; default=False) Add additional featutes to
                         the provided table
   --tune                (positional; default=False) Tune hyperparameters of
@@ -135,31 +130,6 @@ example:
     -o test_output.tsv 
 ```
 
-Desired behaviour:
-
-```
-Importing cad_postgap.tsv
-Importing causal_CAD.tsv
-NOTE: You have not specified AES set!
-NOTE: Average prediction will be calculated!
-There are 26 genes from TS found in input file!
-Number of clusters used: 115
-Number of bootstraps: 15
-Sampling coefficient: 1
-
-Logistic regression	
- |████████████████████████████████| 15/15
-Support Vector Machine	
- |████████████████████████████████| 15/15
-ADABoosting	
- |████████████████████████████████| 15/15
-Random Forest	
- |████████████████████████████████| 15/15
-Decision Tree	
- |████████████████████████████████| 15/15
-Done!
-```
-
 2) launching **with** AES:
 
 ```bash
@@ -171,52 +141,15 @@ Done!
     -n 50
 ```
 
-Desired behaviour:
+## **Input example:**
 
-```
-Importing newf2_SCZ2_merged.tsv
-Importing scz_train.tsv
-Importing scz_ass.tsv
-There are 28 genes from AES found in input file!
-There are 15 genes from TS found in input file!
-Number of clusters used: 129
-Number of bootstraps: 50
-Sampling coefficient: 1
+There are two main requirement for the input files:
 
-Logistic regression	
- |████████████████████████████████| 50/50
-PU-score: 9.956632653061224
+1) **All files have to have .tsv extansion**
 
-Support Vector Machine	
- |████████████████████████████████| 50/50
-PU-score: 8.29719387755102
+2) **All files have to have column with gene symbols, called "gene_symbol"**
 
-ADABoosting	
- |████████████████████████████████| 50/50
-PU-score: 9.559426563178464
-
-Random Forest	
- |████████████████████████████████| 50/50
-PU-score: 8.960969387755101
-
-Decision Tree	
- |████████████████████████████████| 50/50
-PU-score: 9.658529879017477
-
-Finding best combination	
- |################################| 31/31
-Best combination is: ['Logistic regression' 'ADABoosting' 'Random Forest' 'Decision Tree']
-PU-score: 14.934948979591836
-Done!
-```
-
-## Features
-
--//-
-
-## Input example:
-
-1) `./gprior.py` Input file (`-i`):
+* `./gprior.py` Input file (`-i`):
 
  |**gene_symbol**| **feature 1** |**feature 2**|**...**|**feature n**|
  |:----:| :--------------------: |:--------------------:|---|:--------------------:|
@@ -224,7 +157,7 @@ Done!
  |...|...| ... |...|...|...|
  |GENE SYMBOL n| ... </br> |... </br> |...|... </br>|
 
-2) `./process_postgap.py` Input file (`-i`):
+* `./process_postgap.py` Input file (`-i`):
 
 For more detailes see: https://github.com/Ensembl/postgap
 
@@ -236,8 +169,7 @@ For more detailes see: https://github.com/Ensembl/postgap
  |...|...| ... |...|...|...|
  |GENE SYMBOL n| ... </br> |... </br> |...|... </br>|
 
-
-3) Algorithm selection set (`-ass`) and True gene set (`-ts`):
+* Algorithm selection set (`-ass`) and True gene set (`-ts`):
 
 | **gene_symbol** | 
 | :-------------: | 
@@ -245,7 +177,7 @@ For more detailes see: https://github.com/Ensembl/postgap
 | FGD5            |
 | INPP5B          |
 
-## Output example:
+## **Output example:**
 
 | **gene_symbol** | **Probability** | 
 | :-------------: | :--------------:| 
@@ -254,9 +186,9 @@ For more detailes see: https://github.com/Ensembl/postgap
 | INPP5B          |    86.46        |
 |   ...           |     ...         |
 
-## License
+## **License**
 [MIT](https://choosealicense.com/licenses/mit/)
 
-## Reference
+## **Reference**
 
 -//-
