@@ -81,13 +81,23 @@ There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to
 
 ### process_postgap.py
 
-This script allows you to summarize postgap output and make gene-level table for subsequent analysis. All the arguments are pretty straigtforward. For more details see **Input examples** section.
+This script allows you to summarize postgap output and make gene-level table for subsequent analysis. It can take as an input one or several files. All the arguments are pretty straigtforward. For more details see **Input examples** section.
 
 ```bash
   -h, --help      show this help message and exit
   -i , --input    Path to file/folder with postgap output
   -o , --output   Path to output
 ```
+
+example/test:
+
+```bash
+./process_postgap.py \
+    -i test/preprocessing/test_input.tsv \
+    -o test/preprocessing/test_output.tsv
+```
+
+If it have worked well (no bugs), then everything is OK! 
 
 ### gprior.py
 
@@ -119,27 +129,29 @@ We add several useful tunable parameters. See `--help` page:
   --set_seed            (positional; default=False) Switch it on if you want
                         reproducibility
 ```
-example:
+example/test:
 
 1) launching **without** AES:
 
 ```bash
- ./gprior.py \
-    -i test_input_copy.tsv \ 
-    -ts test_ts.tsv \ 
-    -o test_output.tsv 
+./gprior.py \
+    -i test/gprior/test_input.tsv \
+    -ts test/gprior/test_ts.tsv \
+    -o test/gprior/test_output.tsv
 ```
 
 2) launching **with** AES:
 
 ```bash
- ./gprior.py \ 
-    -i test_input_copy.tsv \ 
-    -ts test_ts.tsv \ 
-    -aes test_ass.tsv \ 
-    -o test_output.tsv \
+./gprior.py \
+    -i test/gprior/test_input.tsv \
+    -ts test/gprior/test_ts.tsv \
+    -aes test/gprior/test_aes.tsv \
+    -o test/gprior/test_output.tsv \
     -n 50
 ```
+
+If it have worked well (no bugs), then everything is OK! 
 
 ## **Input example:**
 
