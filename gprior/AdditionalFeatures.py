@@ -43,28 +43,6 @@ def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     spinner.finish()
     return new_df
 
-
-def transform_to_ranks(df, GTEX_COLUMNS):
-    """
-    This function transform median gene expression values to ranks.
-    The lowest value will be 0 and the highest expression value 53.
-    """
-    gtex_col = list(GTEX_COLUMNS.keys())
-
-    for gene_name in df.index:
-        try:
-            row_list = [x if math.isnan(
-                x) == False else 0 for x in df[gtex_col].loc[gene_name]]
-            ranks = {value: rank for rank,
-                     value in enumerate(sorted(set(row_list)))}
-            ranked = [ranks[i] for i in row_list]
-            df.loc[gene_name, gtex_col] = ranked
-
-        except:
-            continue
-    return df
-
-
 def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
     """
     Combine df with ranks of expression with altered postgap dataframe.
@@ -72,10 +50,8 @@ def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
     """
     df_wth_expression_data = get_expression_data(
         df_with_postgap_data, GTEX_DB, GTEX_COLUMNS)
-    transformed_expression_df = transform_to_ranks(
-        df_wth_expression_data, GTEX_COLUMNS)
-    transformed_expression_df.index = df_with_postgap_data.index 
-    return pd.concat([df_with_postgap_data, transformed_expression_df], axis=1)
+    df_wth_expression_data.index = df_with_postgap_data.index 
+    return pd.concat([df_with_postgap_data, df_wth_expression_data], axis=1)
 
 
 def add_gene_similarity_feature(df, db, causal_genes):

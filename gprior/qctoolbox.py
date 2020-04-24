@@ -71,3 +71,4 @@ def give_summary(wmean, threshold_range, true_y, thr=False, eAUC=False):
         optimal_thr = threshold_range[qc_range.index(qc_coef)] 
         return optimal_thr, qc_coef
     return qc_coef
+

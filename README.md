@@ -75,7 +75,7 @@ source vprior/bin/activate
 
 ## **Usage**
 
-GPrior is a commandline tool that provides user interface for tuning and training Positive-Unlabeled classifier. Minimum input: table with positive examples (gene symbols) and dataframe (rows - gene symbols, columns - gene features). For more details/examples see sections below. In order to perform prioritization, user can try to repeat our pipeline from the article (see **Reference** section) or compile his own table with features. 
+GPrior is a command line tool that provides user interface for tuning and training Positive-Unlabeled classifier. Minimum input: table with positive examples (gene symbols) and dataframe (rows - gene symbols, columns - gene features). For more details/examples see sections below. In order to perform prioritization, user can try to repeat our pipeline from the article (see **Reference** section) or compile his own table with features. 
 
 There are two main scripts: `gprior.py` and `process_postgap.py`. If you want to prioritize genes based on your own table of features - use `gprior.py`. If you want to reproduce pipeline from the article - use `process_postgap.py` for postgap output processing and only then use `gprior.py`. For more details read futher.
 

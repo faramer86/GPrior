@@ -70,7 +70,7 @@ if __name__ == '__main__':
                              s_coef=INtoolbox.give_s(args.s_coef))
     
     if not args.drop_aes and args.algorithm_evaluation_set:
-        ens.set_ass(aes)
+        ens.set_aes(aes)
         ens.set_ytrue()
         ens.run_estimators()
         probas = ens.best_scored_proba()
