@@ -4,7 +4,6 @@ from itertools import combinations
 import gprior.qctoolbox as QCtoolbox
 from progress.bar import Bar
 import numpy as np
-from gprior.var import THRESHOLD_RANGE
 
 def best_clf(model, X_train, y_train, param_dist, cv=3):
     """
@@ -49,7 +48,6 @@ def give_max_score(power_set, true_y, probas, weights=None):
     for ind in power_set:
         wmean = simple_weighted_mean(ind, probas, weights)
         qc = QCtoolbox.give_summary(wmean=wmean,
-                                    threshold_range=THRESHOLD_RANGE,
                                     true_y=true_y,
                                     thr=False)
         if qc >= max_score:

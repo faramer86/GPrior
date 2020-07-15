@@ -115,7 +115,6 @@ class EnsembleClassifier():
             
             if self.alg_eval_set:
                 weight = QCtoolbox.give_summary(wmean=prediction,
-                                            threshold_range=THRESHOLD_RANGE,
                                             true_y=self.true_y)
                 self.weights.append(weight)
                 print(f'PU-score: {weight}', end='\n\n')

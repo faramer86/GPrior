@@ -45,8 +45,6 @@ PARAM_DIST_ADA = {"learning_rate": np.logspace(-6, 0, 15),
                   "algorithm": ['SAMME', 'SAMME.R']}
 
 WEIGHTS = {1:9, 0:1}
- 
-THRESHOLD_RANGE = [0.01, 0.1] + [i for i in range(1, 98)]
 
 PARAMS = {
     

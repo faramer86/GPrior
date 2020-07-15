@@ -62,8 +62,7 @@ if __name__ == '__main__':
     X, y = MLtoolbox.return_x_y(input_file,
                                causal_genes,
                                k_clusters=INtoolbox.give_k(args.k_clusters, input_file))
-    print(X)
-    X.to_csv('~/Desktop/X.tsv', sep='\t')
+    
     ens = EnsembleClassifier(X, y, MODELS, 
                              set_seed=args.set_seed,
                              tune=args.tune,
