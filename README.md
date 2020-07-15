@@ -202,9 +202,6 @@ For more detailes see: https://github.com/Ensembl/postgap
 | INPP5B          |    86.46        |
 |   ...           |     ...         |
 
-## **License**
-[MIT](https://choosealicense.com/licenses/mit/)
-
 ## **Reference**
 
--//-
+ https://doi.org/10.1101/2020.07.12.199273
