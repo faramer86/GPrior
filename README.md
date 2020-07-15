@@ -107,7 +107,7 @@ If it have worked well (no bugs), then everything is OK!
 
 `gprior.py` perfor gene prioritization using table of features and sets of causal genes as an input (see **Input examples** section). 
 
-It consists of 5 PU Bagging classifiers. All the predictions are combined using optimal combination approach (see article) or simple mean. The main difference between this two approaches is that if you do not have enough data for AES compiling, so you can't evaluate each PU bagging prediction quality and find the best combination, so then simple mean between all the predictions is calculated (just do not specify `-aes` argument). Otherwise, true gene set (TS) is used for training and algorithm selection set (ASS) for optimal combination finding and quality evaluation.
+It consists of 5 PU Bagging classifiers. All the predictions are combined using optimal combination approach (see article) or simple mean. The main difference between this two approaches is that if you do not have enough data for AES compiling, so you can't evaluate each PU bagging prediction quality and find the best combination, so then simple mean between all the predictions is calculated (just do not specify `-aes` argument). Otherwise, true gene set (TS) is used for training and algorithm evaluation set (AES) for optimal combination finding and quality evaluation.
 
 We add several useful tunable parameters. See `--help` page:
 
