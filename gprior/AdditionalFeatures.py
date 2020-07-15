@@ -16,7 +16,7 @@ def add_nsnp(df, tmp):
 
 def add_reactome_feature(df, db, causal_genes):
     feature = list()
-    for gene in df.index:
+    for gene in df.gene_symbol:
         if gene in db.Gene1.values:
             n = db.query(f'Gene1 == "{gene}"')['Gene2'] \
              .map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0) \
@@ -32,15 +32,19 @@ def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     """
     new_df = pd.DataFrame().assign(**GTEX_COLUMNS)
     spinner = Spinner('Adding fetures ')
-    for gene_name in df.index:
-        spinner.next()
-        values = GTEX_DB[GTEX_DB['Description'] == gene_name].iloc[:, 2:]
-        if len(values) == 1:
-            new_df = new_df.append(values, ignore_index=True)
-        else:
-            values = pd.Series(GTEX_COLUMNS)
-            new_df = new_df.append(values, ignore_index=True)
+    for gene_name in df.gene_symbol:
+        try:
+            spinner.next()
+            values = GTEX_DB.query(f'Description == "{gene_name}"').iloc[:, 2:]
+            if len(values) == 1:
+                new_df = new_df.append(values, ignore_index=True)
+            else:
+                values = pd.Series(GTEX_COLUMNS)
+                new_df = new_df.append(values, ignore_index=True)
+        except:
+            continue
     spinner.finish()
+    print(new_df)
     return new_df
 
 def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
@@ -65,7 +69,7 @@ def add_gene_similarity_feature(df, db, causal_genes):
     see: process_input_file function
     """
     feature = list()
-    for gene in df.index:
+    for gene in df.gene_symbol:
         if gene in db.index:
             gene_list = db.loc[gene, 'associated_genes']
             if type(gene_list) != float:
@@ -80,9 +84,9 @@ def add_gene_similarity_feature(df, db, causal_genes):
     return feature
 
 def add_features(df, causal_genes):
+    df = add_gtex_feature(df, GTEX_COLUMNS, GTEX_DB)
     df['Reactome'] = add_reactome_feature(
         df, REACTOME_DB, causal_genes)
-    df = add_gtex_feature(df, GTEX_COLUMNS, GTEX_DB)
     df['gtex_similarity'] = add_gene_similarity_feature(
         df, GTEX_SIMILARITY_DB, causal_genes)
     df['blastp_similarity'] = add_gene_similarity_feature(

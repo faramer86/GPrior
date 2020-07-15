@@ -2,7 +2,6 @@
 
 from gprior.modules import *
 
-
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 if __name__ == '__main__':
@@ -43,8 +42,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     input_file = INtoolbox.import_file(args.input)
+    
     causal_genes = INtoolbox.import_file(args.true_set)
-
+    
     if args.algorithm_evaluation_set:
         aes = INtoolbox.import_file(args.algorithm_evaluation_set)
         n_aes = INtoolbox.find_genes(aes.gene_symbol, input_file.gene_symbol)
@@ -55,14 +55,15 @@ if __name__ == '__main__':
     
     n_ts = INtoolbox.find_genes(causal_genes.gene_symbol, input_file.gene_symbol)
     print(f'There are {n_ts} genes from TS found in input file!')
-
+    
     if args.add_features:
-        input_file = proc_fts.add_features(input_file, causal_genes)
+        input_file = Ftoolbox.add_features(input_file, causal_genes)
 
     X, y = MLtoolbox.return_x_y(input_file,
                                causal_genes,
                                k_clusters=INtoolbox.give_k(args.k_clusters, input_file))
-
+    print(X)
+    X.to_csv('~/Desktop/X.tsv', sep='\t')
     ens = EnsembleClassifier(X, y, MODELS, 
                              set_seed=args.set_seed,
                              tune=args.tune,
@@ -73,10 +74,10 @@ if __name__ == '__main__':
         ens.set_aes(aes)
         ens.set_ytrue()
         ens.run_estimators()
-        probas = ens.best_scored_proba()
+        probas = ens.prediction_with_aes()
     else:
         ens.run_estimators()
-        probas = ens.get_prediction_set()
+        probas = ens.prediction_without_aes()
 
     probas.to_csv(args.output, sep='\t', index=False)
 

@@ -110,6 +110,7 @@ class EnsembleClassifier():
                                          tune=self.tune,
                                          n_bootstrap=self.n_bootstrap,
                                          s_coef=self.s_coef)
+            
             prediction = pu_clf.run_bagging(self.X, self.y).average_prob.values
             
             if self.alg_eval_set:
@@ -118,24 +119,12 @@ class EnsembleClassifier():
                                             true_y=self.true_y)
                 self.weights.append(weight)
                 print(f'PU-score: {weight}', end='\n\n')
+            
             self.probas.append(prediction)        
     
-    def simple_weighted_mean(self, ind, use_weights=False):
-        """
-        Calculate weighted mean for each combination.
-        """
-        if use_weights:
-            weights = self.weights[ind]
-            if np.sum(weights) == 0:
-                weights = [1] * len(ind)
-            return np.average(self.probas[ind],
-                              axis=0,
-                              weights=weights)
-        return np.average(self.probas[ind], axis=0)
-
-    def get_prediction_set(self):
+    def prediction_without_aes(self):
         self.probas = np.array(self.probas)
-        self.n_clfs = list(range(len(self.dict_of_estimators)))
+        n_clfs = list(range(len(self.dict_of_estimators)))
         return pd.DataFrame({
                 'gene_symbol':self.X.index,
                 'LR': self.probas[0],
@@ -143,41 +132,19 @@ class EnsembleClassifier():
                 'Ada': self.probas[2],
                 'RF': self.probas[3],
                 'DT': self.probas[4],
-                'wmean': self.simple_weighted_mean(ind=self.n_clfs, use_weights=False)
+                'wmean': PUtoolbox.simple_weighted_mean(ind=n_clfs,
+                                                        probas=self.probas)
             }).sort_values(by='wmean', ascending=False)
 
-
-    def give_max_score(self, power_set):
-
-        print('Finding best combination', end='\t')
-        bar = Bar(max=len(power_set))
-        print()
-        
-        max_score = 0
-        for ind in power_set:
-            wmean = self.simple_weighted_mean(ind=ind)
-            qc = QCtoolbox.give_summary(wmean=wmean,
-                                        threshold_range=THRESHOLD_RANGE,
-                                        true_y=self.true_y,
-                                        thr=False)
-            if qc >= max_score:
-                max_score = qc
-                values = wmean
-                index_max = ind
-            bar.next()
-        bar.finish()
-        return max_score, values, index_max
-
-    def best_scored_proba(self):
+    def prediction_with_aes(self):
         """
         Find optimal combination of weighted predictions.
         """
-
         self.weights = np.array(self.weights)
         self.probas = np.array(self.probas)
-        self.n_clfs = list(range(len(self.dict_of_estimators)))
-        power_set = PUtoolbox.powerset(self.n_clfs)
-        max_score, values, index_max =  self.give_max_score(power_set)
+        n_clfs = list(range(len(self.dict_of_estimators)))
+        power_set = PUtoolbox.powerset(n_clfs)
+        max_score, values, index_max = PUtoolbox.give_max_score(power_set, self.true_y, self.probas)
         print(f'Best combination is: {np.array(list(MODELS.keys()))[index_max]}')
         print(f'PU-score: {max_score}')
         return pd.DataFrame({'gene_symbol':self.X.index,

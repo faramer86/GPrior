@@ -30,7 +30,6 @@ def process_x(x, n_clusters):
     return pd.DataFrame(
            FeatureAgglomeration(n_clusters=n_clf).fit_transform(norm_x), 
            index=gene_names)
-    
 
 def prepare_df(df):
     """
@@ -56,5 +55,4 @@ def return_x_y(df, causal_genes, k_clusters):
     if sum(y) <= 5:
         raise AssertionError("Numer of causal genes found <= 5. Add more causal genes.")
     x = process_x(prepare_df(df), k_clusters)
-    return x, y    
-    
+    return x, y

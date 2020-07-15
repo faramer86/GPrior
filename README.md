@@ -73,6 +73,10 @@ deactivate
 source vprior/bin/activate
 ```
 
+#### Fow Windows users:
+
+https://stackoverflow.com/questions/17737203/python-and-virtualenv-on-windows
+
 ## **Usage**
 
 GPrior is a command line tool that provides user interface for tuning and training Positive-Unlabeled classifier. Minimum input: table with positive examples (gene symbols) and dataframe (rows - gene symbols, columns - gene features). For more details/examples see sections below. In order to perform prioritization, user can try to repeat our pipeline from the article (see **Reference** section) or compile his own table with features. 

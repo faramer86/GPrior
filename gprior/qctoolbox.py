@@ -61,7 +61,7 @@ def give_summary(wmean, threshold_range, true_y, thr=False, eAUC=False):
     Depends on thr value, it return maximal PU score
     or maximal PU score with optimal probability threshold
     """
-    #threshold_range = wmean
+    threshold_range = wmean[::2]
     qc_range = give_qc_range(wmean, threshold_range, true_y)
     qc_coef = max(qc_range)
     if eAUC:
