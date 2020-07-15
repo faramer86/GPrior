@@ -185,7 +185,7 @@ For more detailes see: https://github.com/Ensembl/postgap
  |...|...| ... |...|...|...|
  |GENE SYMBOL n| ... </br> |... </br> |...|... </br>|
 
-* Algorithm evaluation set (`-ass`) and True gene set (`-ts`):
+* Algorithm evaluation set (`-aes`) and True gene set (`-ts`):
 
 | **gene_symbol** | 
 | :-------------: | 
