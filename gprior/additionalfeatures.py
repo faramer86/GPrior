@@ -36,11 +36,9 @@ def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
         try:
             spinner.next()
             values = GTEX_DB.query(f'Description == "{gene_name}"').iloc[:, 2:]
-            if len(values) == 1:
-                new_df = new_df.append(values, ignore_index=True)
-            else:
+            if len(values) != 1:
                 values = pd.Series(GTEX_COLUMNS)
-                new_df = new_df.append(values, ignore_index=True)
+            new_df = new_df.append(values, ignore_index=True)
         except:
             continue
     spinner.finish()

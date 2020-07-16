@@ -25,7 +25,7 @@ Make sure that you have `python` version >= 3.6 and latest version of `pip`. You
 
 If you do not have Python, please install the latest 3.x version from python.org.
 
-In order to be cross-platform we uses `virtualenv`. If you do not have it you can install it using `pip` (use `sudo` if necessary):
+In order to help keep our project dependencies separated and avoid conflicts between package versions we uses `virtualenv`. If you do not have it you can install it using `pip`:
 
 ```bash
 pip install virtualenv
@@ -175,7 +175,7 @@ There are two main requirement for the input files:
 
 * `./process_postgap.py` Input file (`-i`):
 
-For more detailes see: https://github.com/Ensembl/postgap
+For more details see: https://github.com/Ensembl/postgap
 
  |**gene_symbol**| ** SNPs ** |**feature 2**|**...**|**feature n**|
  |:----:| :--------------------: |:--------------------:|---|:--------------------:|

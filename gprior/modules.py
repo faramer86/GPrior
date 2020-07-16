@@ -9,6 +9,6 @@ import pandas as pd
 from pathlib import Path
 from gprior.var import *
 from gprior.ensemble import *
-import gprior.AdditionalFeatures as Ftoolbox
+import gprior.additionalfeatures as FEtoolbox
 import gprior.intoolbox as INtoolbox
 import gprior.mltoolbox as MLtoolbox

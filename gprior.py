@@ -57,7 +57,7 @@ if __name__ == '__main__':
     print(f'There are {n_ts} genes from TS found in input file!')
     
     if args.add_features:
-        input_file = Ftoolbox.add_features(input_file, causal_genes)
+        input_file = FEtoolbox.add_features(input_file, causal_genes)
 
     X, y = MLtoolbox.return_x_y(input_file,
                                causal_genes,
