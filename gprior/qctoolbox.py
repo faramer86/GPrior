@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
-from gprior.var import *
+
 
 def pu_score(true_y, pred_y):
     """
@@ -13,7 +13,8 @@ def pu_score(true_y, pred_y):
     """
     Pr = np.sum(pred_y) / pred_y.size
     recall = recall_score(true_y, pred_y)
-    return recall**2/Pr
+    return recall ** 2 / Pr
+
 
 def cost_function(true_y, pred_y):
     """
@@ -26,6 +27,7 @@ def cost_function(true_y, pred_y):
         return 0
     return pu_score(true_y, pred_y)
 
+
 def give_true_y(X, y, alg_eval_set):
     """
     Return np.array with true answers for the whole geneset
@@ -33,11 +35,12 @@ def give_true_y(X, y, alg_eval_set):
     Used for Pr[y==1] estimation.
     See original article for more details.
     """
-    gene_names = X.index 
+    gene_names = X.index
     iP = y[y > 0].index
     true_y = list(map(lambda gene: (gene in alg_eval_set) & \
-        (gene not in gene_names[iP]), gene_names))
-    return np.array(true_y) 
+                                   (gene not in gene_names[iP]), gene_names))
+    return np.array(true_y)
+
 
 def wmean_qc_coef(wmean, threshold, true_y):
     """
@@ -48,13 +51,15 @@ def wmean_qc_coef(wmean, threshold, true_y):
     if np.sum(pred_y) == 0:
         return 0
     return pu_score(true_y, pred_y)
-    
+
+
 def give_qc_range(wmean, threshold_range, true_y):
     """
     Return list with pu-scores for different threshold values.
     """
     return [wmean_qc_coef(wmean, threshold, true_y)
             for threshold in threshold_range]
+
 
 def give_summary(wmean, true_y, thr=False, eAUC=False):
     """
@@ -68,7 +73,6 @@ def give_summary(wmean, true_y, thr=False, eAUC=False):
         qc_coef = roc_auc_score(true_y, wmean)
         return qc_coef
     if thr:
-        optimal_thr = threshold_range[qc_range.index(qc_coef)] 
+        optimal_thr = threshold_range[qc_range.index(qc_coef)]
         return optimal_thr, qc_coef
     return qc_coef
-

@@ -5,6 +5,7 @@ import gprior.qctoolbox as QCtoolbox
 from progress.bar import Bar
 import numpy as np
 
+
 def best_clf(model, X_train, y_train, param_dist, cv=3):
     """
     Hyperparameter tuning based on grid search.
@@ -13,17 +14,19 @@ def best_clf(model, X_train, y_train, param_dist, cv=3):
     clf = GridSearchCV(model,
                        param_dist,
                        cv=cv,
-                       scoring = make_scorer(QCtoolbox.cost_function,
-                                             greater_is_better=True),
+                       scoring=make_scorer(QCtoolbox.cost_function,
+                                           greater_is_better=True),
                        iid=False,
                        n_jobs=-1)
     clf.fit(X_train, y_train)
     return clf.best_estimator_
 
+
 def powerset(someset):
     size = len(someset)
-    return list(list(sub) for k in range(1, size+1) \
-            for sub in combinations(someset,k))
+    return list(list(sub) for k in range(1, size + 1) \
+                for sub in combinations(someset, k))
+
 
 def simple_weighted_mean(ind, probas, weights=None, use_weights=False):
     """
@@ -38,12 +41,12 @@ def simple_weighted_mean(ind, probas, weights=None, use_weights=False):
                           weights=weights)
     return np.average(probas[ind], axis=0)
 
-def give_max_score(power_set, true_y, probas, weights=None):
 
+def give_max_score(power_set, true_y, probas, weights=None):
     print('Finding best combination', end='\t')
     bar = Bar(max=len(power_set))
     print()
-        
+
     max_score = 0
     for ind in power_set:
         wmean = simple_weighted_mean(ind, probas, weights)

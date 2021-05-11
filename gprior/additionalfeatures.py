@@ -2,29 +2,29 @@ import pandas as pd
 from gprior.var import *
 from progress.spinner import Spinner
 import dask.dataframe as dd
-import math
-import os
-import sys
+
 
 def add_nsnp(df, tmp):
     return list(dd.concat([tmp]) \
-                  .fillna(0)\
-                  .groupby('gene_symbol')\
-                  .count()\
-                  .score\
-                  .compute())
+                .fillna(0) \
+                .groupby('gene_symbol') \
+                .count() \
+                .score \
+                .compute())
+
 
 def add_reactome_feature(df, db, causal_genes):
     feature = list()
     for gene in df.gene_symbol:
         if gene in db.Gene1.values:
             n = db.query(f'Gene1 == "{gene}"')['Gene2'] \
-             .map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0) \
-             .sum()
+                .map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0) \
+                .sum()
             feature.append(n)
         else:
             feature.append(0)
     return feature
+
 
 def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     """
@@ -45,6 +45,7 @@ def get_expression_data(df, GTEX_DB, GTEX_COLUMNS):
     print(new_df)
     return new_df
 
+
 def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
     """
     Combine df with ranks of expression with altered postgap dataframe.
@@ -52,7 +53,7 @@ def add_gtex_feature(df_with_postgap_data, GTEX_COLUMNS, GTEX_DB):
     """
     df_wth_expression_data = get_expression_data(
         df_with_postgap_data, GTEX_DB, GTEX_COLUMNS)
-    df_wth_expression_data.index = df_with_postgap_data.index 
+    df_wth_expression_data.index = df_with_postgap_data.index
     return pd.concat([df_with_postgap_data, df_wth_expression_data], axis=1)
 
 
@@ -80,6 +81,7 @@ def add_gene_similarity_feature(df, db, causal_genes):
         else:
             feature.append(0)
     return feature
+
 
 def add_features(df, causal_genes):
     df = add_gtex_feature(df, GTEX_COLUMNS, GTEX_DB)

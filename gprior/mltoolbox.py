@@ -1,15 +1,16 @@
-
 import pandas as pd
 from sklearn.cluster import FeatureAgglomeration
 from sklearn.preprocessing import RobustScaler
 import sys
-    
+
+
 def filter_data(df):
     """
     Filter out genes with more then 85% missing features.
     """
     bool_index = df.apply(lambda x: sum(x == 0), axis=1) <= 85
-    return df.loc[bool_index, ]
+    return df.loc[bool_index,]
+
 
 def process_x(x, n_clusters):
     """
@@ -28,8 +29,9 @@ def process_x(x, n_clusters):
     else:
         sys.exit('There are no features!')
     return pd.DataFrame(
-           FeatureAgglomeration(n_clusters=n_clf).fit_transform(norm_x), 
-           index=gene_names)
+        FeatureAgglomeration(n_clusters=n_clf).fit_transform(norm_x),
+        index=gene_names)
+
 
 def prepare_df(df):
     """
@@ -38,6 +40,7 @@ def prepare_df(df):
     """
     return df.fillna(0).set_index('gene_symbol')
 
+
 def prepare_y(df, causal_genes):
     """
     Make Y from provided dataframe and list of causal genes
@@ -45,12 +48,13 @@ def prepare_y(df, causal_genes):
     """
     return df.gene_symbol.map(lambda x: 1 if x in causal_genes.gene_symbol.values else 0)
 
+
 def return_x_y(df, causal_genes, k_clusters):
     """
     Return X - df with filled name
     y - Series with supervided answers (1 or 0) for each gene
     """
-    #filtered_df = filter_data(df)
+    # filtered_df = filter_data(df)
     y = prepare_y(df, causal_genes)
     if sum(y) <= 5:
         raise AssertionError("Numer of causal genes found <= 5. Add more causal genes.")
