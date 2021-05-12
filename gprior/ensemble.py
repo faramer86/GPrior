@@ -78,7 +78,7 @@ class EnsembleClassifier():
     Perform qc and 'optimal combination' finding strategy.
     """
 
-    def __init__(self, X, y, dict_of_estimators, set_seed=False, tune=False, n_bootstrap=10, s_coef=1):
+    def __init__(self, X, y, dict_of_estimators, set_seed=False, tune=False, n_bootstrap=30, s_coef=1):
         self.X = X
         self.y = y
         self.set_seed = set_seed

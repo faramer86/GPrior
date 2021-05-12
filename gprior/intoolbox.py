@@ -8,7 +8,7 @@ def give_path(arg):
     if os.path.isfile(arg):
         return arg
     else:
-        return os.path.join(arg, "*.tsv")
+        return os.path.join(arg, '*.tsv')
 
 
 def merge(df):
@@ -23,7 +23,7 @@ def find_genes(list_1, list_2):
     return len(set(list_1) & set(list_2))
 
 
-def give_n(arg, default=15):
+def give_n(arg, default=30):
     if arg:
         print(f'Number of bootstraps: {arg}')
         return arg
@@ -65,6 +65,7 @@ def import_file(input_path):
         infile = pd.read_csv(input_path, sep='\t', low_memory=False)
         if 'gene_symbol' not in list(infile):
             sys.exit(f'({filename}) Please specify column with genes in all of the files as "gene_symbol"!')
+        infile['gene_symbol'] = infile['gene_symbol'].apply(lambda x: x if pd.isna(x) else x.upper())
         return infile
     else:
         sys.exit(f'There is no file with such name ({filename}) or it is not a file!')

@@ -121,15 +121,20 @@ We add several useful tunable parameters. See `--help` page:
   -aes , --algorithm_evaluation_set 
                         Path to file with algorithm evaluation set
   -o , --output         Path to output file
-  -n , --n_bootstrap    (default=15) Number of bootstraps for PU Bagging
+  -n , --n_bootstrap    (default=30) Number of bootstraps for PU Bagging
   -k , --k_clusters     (default=n_features) Number of clusters for Feature
                         Agglomeration
   -s , --s_coef         (default=1) Sampling coefficient
+  --drop_aes            (positional; default=False) Perform pipeline without AES and qc.
+                        Instead of optimal combination - individual predictions and
+                        their mean will be returned
+  --drop_scale          (positional; default=False) Whether to scale features using 
+                        interquartile range (IQR).
   --add_features        (positional; default=False) Add additional featutes to
                         the provided table
   --tune                (positional; default=False) Tune hyperparameters of
                         the model It significently slow down training process.
-                        Do not use it with high n.
+                        Do not use it with high '_n_'
   --set_seed            (positional; default=False) Switch it on if you want
                         reproducibility
 ```

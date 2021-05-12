@@ -64,7 +64,7 @@ def add_gene_similarity_feature(df, db, causal_genes):
     1) gtex_similarity
     2) blastp_similarity
     3) atlas_similarity
-    4) gene_intaractions
+    4) gene_interactions
     see: process_input_file function
     """
     feature = list()
