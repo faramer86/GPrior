@@ -2,7 +2,7 @@ dask==2.13.0
 fsspec==0.7.1
 joblib==0.14.1
 locket==0.2.0
-numpy==1.18.2
+numpy==1.22.0
 pandas==1.0.3
 partd==1.1.0
 progress==1.5
