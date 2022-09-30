@@ -1,6 +1,6 @@
 dask==2.13.0
 fsspec==0.7.1
-joblib==0.14.1
+joblib==1.2.0
 locket==0.2.0
 numpy==1.18.2
 pandas==1.0.3
